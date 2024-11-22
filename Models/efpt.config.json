@@ -1,0 +1,103 @@
+﻿{
+   "CodeGenerationMode": 3,
+   "ContextClassName": "BritshHosbitalContext",
+   "ContextNamespace": null,
+   "DefaultDacpacSchema": null,
+   "FilterSchemas": false,
+   "IncludeConnectionString": false,
+   "ModelNamespace": null,
+   "OutputContextPath": null,
+   "OutputPath": "Models",
+   "PreserveCasingWithRegex": true,
+   "ProjectRootNamespace": "Models",
+   "Schemas": null,
+   "SelectedHandlebarsLanguage": 0,
+   "SelectedToBeGenerated": 0,
+   "T4TemplatePath": null,
+   "Tables": [
+      {
+         "Name": "[dbo].[Advertisment]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[BookingSettingOrg]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Citizen]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Counter]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Counters]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[CounterServices]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Customer]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Display]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[DisplayAdverts]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[DisplayCounters]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[employee]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Group]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[GroupUser]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Organization]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Reservations]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Service]",
+         "ObjectType": 0
+      }
+   ],
+   "UiHint": "lava.BritshHosbital.dbo",
+   "UncountableWords": null,
+   "UseBoolPropertiesWithoutDefaultSql": false,
+   "UseDatabaseNames": false,
+   "UseDateOnlyTimeOnly": false,
+   "UseDbContextSplitting": false,
+   "UseFluentApiOnly": true,
+   "UseHandleBars": false,
+   "UseHierarchyId": false,
+   "UseInflector": false,
+   "UseLegacyPluralizer": false,
+   "UseManyToManyEntity": false,
+   "UseNoDefaultConstructor": false,
+   "UseNoObjectFilter": false,
+   "UseNodaTime": false,
+   "UseNullableReferences": true,
+   "UseSchemaFolders": false,
+   "UseSchemaNamespaces": false,
+   "UseSpatial": false,
+   "UseT4": false
+}
