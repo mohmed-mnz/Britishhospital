@@ -16,6 +16,7 @@ public partial class Employee
     public int? Citizenid { get; set; }
 
     public int? Orgid { get; set; }
+    public bool? IsActive { get; set; }
 
     public virtual Citizen? Citizen { get; set; }
 

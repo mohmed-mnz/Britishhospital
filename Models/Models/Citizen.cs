@@ -11,11 +11,13 @@ public partial class Citizen
 
     public string? Name { get; set; }
 
-    public string Nid { get; set; } = null!;
+    public string? Nid { get; set; } = null!;
 
     public string Mobile { get; set; } = null!;
 
-    public bool Sex { get; set; }
+    public bool? Sex { get; set; }
+    public string? Email { get; set; }
+    public string? Address { get; set; }
 
     public virtual ICollection<Customer> Customer { get; set; } = new List<Customer>();
 

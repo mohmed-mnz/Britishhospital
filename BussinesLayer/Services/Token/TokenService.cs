@@ -35,10 +35,10 @@ namespace ServiceLayer
 
             var TokenDescription = new SecurityTokenDescriptor()
             {
-                Issuer = jwtConfig.Jwt.Issuer,
+                Issuer = jwtConfig!.Jwt!.Issuer,
                 Audience = jwtConfig.Jwt.Audience,
                 SigningCredentials = SigningCredentials(jwtConfig.Jwt.key ?? throw new ArgumentException("jwt:audience is not configured")),
-                Expires = DateTime.UtcNow.AddDays(ExpiryInMiuntes),
+                Expires = DateTime.UtcNow.AddMinutes(jwtConfig.Jwt.ExpirytimeinMinutes),
             };
             TokenDescription.Subject = new ClaimsIdentity();
             foreach (var Claim in Claims)
@@ -59,8 +59,17 @@ namespace ServiceLayer
 
 
             var tokenHandler = new JwtSecurityTokenHandler();
-            var token = new JwtSecurityTokenHandler().CreateToken(TokenDescription);
-            return tokenHandler.WriteToken(token);
+
+            try
+            {
+                var token = tokenHandler.CreateToken(TokenDescription);
+                return tokenHandler.WriteToken(token);
+            }
+            catch(Exception ex)
+            {
+                throw;
+            }
+       
         }
 
 

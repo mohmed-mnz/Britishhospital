@@ -10,6 +10,8 @@ using System.Text;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.ResponseCompression;
 using System.IO.Compression;
+using Booking.MiddleWares;
+using Booking.Middlewares;
 internal class Program
 {
     private static void Main(string[] args)
@@ -116,6 +118,7 @@ internal class Program
         builder.Services.RegisterBussinesLayerDi();
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddHealthChecks();
+        builder.Services.AddTransient<GlobalEaxceptionErrorHandlingMiddleware>();
 
         //builder.Services.AddSingleton<IDistributedLockProvider>(_ =>  new SqlDistributedLockProvider(appConfiguration.DbConfig.GovlcConnctionString));
 
@@ -143,7 +146,7 @@ internal class Program
 
 
         var app = builder.Build();
-      //  app.UseJwtTokenInterceptor();
+        app.UseJwtTokenInterceptor();
 
         if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
         {
@@ -159,6 +162,8 @@ internal class Program
         app.UseAuthentication();
 
         app.UseAuthorization();
+
+        app.UseMiddleware<GlobalEaxceptionErrorHandlingMiddleware>();
 
         app.MapControllers();
 

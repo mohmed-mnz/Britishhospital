@@ -7,14 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="add column with relationshid in counters and organizations 2024-11-19.sql" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Include="add column with relationshid in counters and organizations 2024-11-19.sql" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="dbup-core" Version="5.0.37" />
     <PackageReference Include="dbup-sqlserver" Version="5.0.37" />
   </ItemGroup>

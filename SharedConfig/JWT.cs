@@ -1,11 +1,11 @@
-﻿namespace SharedConfig
+﻿namespace SharedConfig;
+
+public class JWT
 {
-    public class JWT
-    {
 
-        public string key { get; set; }
-        public string Issuer { get; set; }
-        public string Audience { get; set; }
+    public string key { get; set; } = string.Empty;
+    public string Issuer { get; set; } = string.Empty;
+    public string Audience { get; set; } = string.Empty;
+    public int ExpirytimeinMinutes { get; set; }
 
-    }
 }
