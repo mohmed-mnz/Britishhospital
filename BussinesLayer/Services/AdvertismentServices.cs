@@ -152,7 +152,7 @@ public class AdvertismentServices(IAdvertismentRepository _advertismentRepositor
         }
         else
         {
-            advert.MediaFile = model.MediaFile;
+            advert.MediaFile = await _attachmentServices.RetrieveFileAsBase64("", advert.MediaFile!);
         }
         await _advertismentRepository.Commit();
         var result = _mapper.Map<AdvertismentDto>(advert);
