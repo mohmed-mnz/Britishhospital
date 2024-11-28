@@ -23,5 +23,7 @@ public  static  class BussinesLayerDI
         services.AddScoped<IEmployeeServices, EmployeeServices>();
         services.AddScoped<IGroupServices, GroupServices>();
         services.AddScoped<IGroupUserServices, GroupUserServices>();
+        services.AddScoped<IDisplayAdvertsServices,DisplayAdvertsServices>();
+        services.AddScoped<IDisplayCounterServices, DisplayCountersServices>();
     }
 }
