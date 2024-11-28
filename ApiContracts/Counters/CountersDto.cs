@@ -15,4 +15,8 @@ public class CountersDto
     [JsonPropertyName("empName")]
 
     public string? empname { get; set; }
+    [JsonPropertyName("orgId")]
+    public int? Orgid { get; set; }
+    [JsonPropertyName("orgName")]
+    public string? Orgname { get; set; }
 }

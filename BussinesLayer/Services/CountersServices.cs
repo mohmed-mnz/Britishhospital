@@ -15,6 +15,7 @@ public class CountersServices(ICounterRepository counterRepository, IMapper mapp
         var counter = mapper.Map<Counters>(model);
         await counterRepository.InsertAsync(counter);
         await counterRepository.Commit();
+        counter= await counterRepository.Where(x => x.CounterId == counter.CounterId)!.Include(x => x.Emp).ThenInclude(y => y.Citizen).Include(o=>o.Org).AsSplitQuery().FirstOrDefaultAsync();
         var result = mapper.Map<CountersDto>(counter);
         return GResponse<CountersDto>.CreateSuccess(result);
 
@@ -35,14 +36,14 @@ public class CountersServices(ICounterRepository counterRepository, IMapper mapp
 
     public async Task<GResponse<IEnumerable<CountersDto>>> GetAllBasedonorgid(int orgid)
     {
-        var counters = await counterRepository.AsQueryable().Where(x=>x.Orgid==orgid).Include(x => x.Emp).ThenInclude(y => y.Citizen).ToListAsync();
+        var counters = await counterRepository.AsQueryable().Where(x=>x.Orgid==orgid).Include(x => x.Emp).ThenInclude(y => y.Citizen).Include(o=>o.Org).AsSplitQuery().ToListAsync();
         var result = mapper.Map<List<CountersDto>>(counters);
         return GResponse<IEnumerable<CountersDto>>.CreateSuccess(result);
     }
 
     public async Task<GResponse<List<CountersDto>>> GetAllCounters()
     {
-        var counters =await counterRepository.AsQueryable().Include(x=>x.Emp).ThenInclude(y => y.Citizen).ToListAsync();
+        var counters =await counterRepository.AsQueryable().Include(x=>x.Emp).ThenInclude(y => y.Citizen).Include(o => o.Org).AsSplitQuery().ToListAsync();
         var result = mapper.Map<List<CountersDto>>(counters);
         return GResponse<List<CountersDto>>.CreateSuccess(result);
     }
@@ -61,7 +62,7 @@ public class CountersServices(ICounterRepository counterRepository, IMapper mapp
 
     public async Task<GResponse<CountersDto>> UpdateCounter(CountersUpdateDto model)
     {
-        var counter = await counterRepository.Where(x => x.CounterId == model.CounterId)!.Include(x => x.Emp).ThenInclude(y=>y.Citizen).FirstOrDefaultAsync();
+        var counter = await counterRepository.Where(x => x.CounterId == model.CounterId)!.Include(x => x.Emp).ThenInclude(y=>y.Citizen).Include(o => o.Org).AsSplitQuery().FirstOrDefaultAsync();
         if (counter == null)
         {
             throw new ApplicationException("Counter not found");

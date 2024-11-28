@@ -13,7 +13,8 @@ public class CounterProfile : Profile
         CreateMap<CountersUpdateDto, Counters>()
             .ReverseMap();
         CreateMap<Counters, CountersDto>()
-            .ForMember(dest => dest.empname, opt => opt.MapFrom(src => src.Emp.Citizen!.Name))
+            .ForMember(dest => dest.empname, opt => opt.MapFrom(src => src.Emp!.Citizen!.Name))
+            .ForMember(destinationMember: dest => dest.Orgname, memberOptions: opt => opt.MapFrom(src => src.Org!.OrgName))
             .ReverseMap();
 
     }

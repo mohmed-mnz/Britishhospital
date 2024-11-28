@@ -10,4 +10,6 @@ public class CountersAddDto
     public bool? IsActive { get; set; }
     [JsonPropertyName("counterName")]
     public int empid { get; set; }
+    [JsonPropertyName("orgId")]
+    public int? Orgid { get; set; }
 }
