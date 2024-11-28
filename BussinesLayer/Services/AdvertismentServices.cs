@@ -14,7 +14,7 @@ public class AdvertismentServices(IAdvertismentRepository _advertismentRepositor
         var advertisment = _mapper.Map<Advertisment>(addDto);
         var date = DateTime.Now.ToString("yyyy/MM/ddd").Replace('/', '-');
        
-        if (advertisment.Mediatype == "1")
+        if (advertisment.Mediatype == "image")
         {
             var extension = addDto.MediaFile!.Split(';')[0].Split('/')[1];
             var response = _attachmentServices.UploadFileAsBase64(new SharedConfig.AssetInfo
@@ -83,7 +83,7 @@ public class AdvertismentServices(IAdvertismentRepository _advertismentRepositor
         }
 
         var result = _mapper.Map<AdvertismentDto>(advert);
-        result.Mediatype = advert.Mediatype == "1" ? "image" : "video";
+        result.Mediatype = advert.Mediatype == "image" ? "image" : "video";
         result.MediaFile = await _attachmentServices.RetrieveFileAsBase64("", result.MediaFile!);
         return GResponse<AdvertismentDto>.CreateSuccess(result);
     }
@@ -94,7 +94,7 @@ public class AdvertismentServices(IAdvertismentRepository _advertismentRepositor
         var result = _mapper.Map<List<AdvertismentDto>>(adverts);
         foreach (var item in result)
         {
-            item.Mediatype = item.Mediatype == "1" ? "image" : "Vedio";
+            item.Mediatype = item.Mediatype == "image" ? "image" : "Vedio";
             item.MediaFile = await _attachmentServices.RetrieveFileAsBase64("", item.MediaFile!);
         }
         return GResponse<List<AdvertismentDto>>.CreateSuccess(result);
