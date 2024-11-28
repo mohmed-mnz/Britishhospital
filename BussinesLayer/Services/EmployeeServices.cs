@@ -5,7 +5,6 @@ using BussinesLayer.Interfaces;
 using BussinesLayer.Interfaces.Token;
 using DataLayer.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Identity.Client;
 using Models.Models;
 using SharedConfig;
 

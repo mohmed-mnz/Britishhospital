@@ -83,7 +83,7 @@ public class AdvertismentServices(IAdvertismentRepository _advertismentRepositor
         }
 
         var result = _mapper.Map<AdvertismentDto>(advert);
-        result.Mediatype = advert.Mediatype == "1" ? "image" : "Vedio";
+        result.Mediatype = advert.Mediatype == "1" ? "image" : "video";
         result.MediaFile = await _attachmentServices.RetrieveFileAsBase64("", result.MediaFile!);
         return GResponse<AdvertismentDto>.CreateSuccess(result);
     }
