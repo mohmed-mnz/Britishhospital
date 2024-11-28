@@ -5,25 +5,25 @@ namespace ApiContracts.Employee;
 public class EmployeeLoginDto
 {
 
-    [JsonPropertyName("EmpId")]
+    [JsonPropertyName("empId")]
     public int EMPID { get; set; }
-    [JsonPropertyName("OrgId")]
+    [JsonPropertyName("orgId")]
     public int ORGID { get; set; }
-    [JsonPropertyName("CtznId")]
+    [JsonPropertyName("citizenId")]
     public int CTZNID { get; set; }
     [JsonPropertyName("Token")]
     public string Token { get; set; } = string.Empty;
-    [JsonPropertyName("UserName")]
+    [JsonPropertyName("userName")]
     public string UserName { get; set; } = string.Empty;
-    [JsonPropertyName("Nid")]
+    [JsonPropertyName("nid")]
     public string NID { get; set; } = string.Empty;
-    [JsonPropertyName("CounterId")]
+    [JsonPropertyName("counterId")]
     public int? CounterId { get; set; }
 
 
-    [JsonPropertyName("OrgName")]
+    [JsonPropertyName("orgName")]
     public string OrgName { get; set; } = string.Empty;
 
-    [JsonPropertyName("ExpirytimeinMinutes")]
+    [JsonPropertyName("expiryTimeinMinutes")]
     public int ExpirytimeinMinutes { get; set; }
 }

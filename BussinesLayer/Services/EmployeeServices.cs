@@ -52,7 +52,11 @@ public class EmployeeServices(IEmployeeRepository _repository, IMapper _mapper, 
     {
         var user = await _repository.Where(u => u.Username == loginDto.Username )!.Include(c => c.Citizen).Include(o => o.Org).Include(x=>x.GroupUser).FirstOrDefaultAsync();
         if (user == null)
-            throw new ApplicationException("User not found");
+            throw new ApplicationException("UserName or Password is not valid");
+
+        if(user.IsActive == false)
+            throw new ApplicationException("UserName or Password is not valid or Not Active User");
+
         if (isValidPassword(loginDto.Password, user.Password))
         {
             Guid tokenId = Guid.NewGuid();
@@ -118,7 +122,8 @@ public class EmployeeServices(IEmployeeRepository _repository, IMapper _mapper, 
                 Name = employeeAddDto.Name,
                 Mobile = employeeAddDto.MobileNumber!,
                 Address = employeeAddDto.Address,
-                Email = employeeAddDto.Email
+                Email = employeeAddDto.Email,
+                Sex = employeeAddDto.gender
             };
             await citizenRepository.InsertAsync(citizen);
             await citizenRepository.Commit();

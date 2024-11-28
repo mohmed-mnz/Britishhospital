@@ -4,8 +4,8 @@ namespace ApiContracts.Employee;
 
 public class EmpLogin
 {
-    [JsonPropertyName("UserName")]
+    [JsonPropertyName("userName")]
     public string Username { get; set; } = string.Empty;
-    [JsonPropertyName("Password")]
+    [JsonPropertyName("password")]
     public string Password { get; set; } = string.Empty;
 }

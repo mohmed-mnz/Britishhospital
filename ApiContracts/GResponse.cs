@@ -4,19 +4,19 @@ namespace ApiContracts;
 
 public class GResponse<T>
 {
-    [JsonPropertyName("Data")]
+    [JsonPropertyName("data")]
     public T? Data { get; set; }
 
-    [JsonPropertyName("IsSucceeded")]
+    [JsonPropertyName("isSucceeded")]
     public bool IsSucceeded { get; set; }
 
-    [JsonPropertyName("Error")]
+    [JsonPropertyName("error")]
     public string? Error { get; set; }
 
-    [JsonPropertyName("ErrorMessage")]
+    [JsonPropertyName("errorMessage")]
     public string? ErrorMessage { get; set; }
 
-    [JsonPropertyName("StatusCode")]
+    [JsonPropertyName("statusCode")]
     public string? StatusCode { get; set; }
 
     public static GResponse<T> CreateSuccess(T? Data)

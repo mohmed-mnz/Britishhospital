@@ -17,6 +17,6 @@ public class EmployeeAddDto
     public string? Name { get; set; }
     [Required]
     [MaxLength(14)]
-   // [EgyptianNidValidation]
     public string? Nid { get; set; }
+    public bool? gender { get; set; }
 }
