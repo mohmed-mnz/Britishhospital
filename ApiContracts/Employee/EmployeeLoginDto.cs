@@ -26,4 +26,9 @@ public class EmployeeLoginDto
 
     [JsonPropertyName("expiryTimeinMinutes")]
     public int ExpirytimeinMinutes { get; set; }
+
+    [JsonPropertyName("roles")]
+    public List<string> Roles { get; set; } = new List<string>();
+
+
 }

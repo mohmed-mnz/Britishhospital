@@ -49,7 +49,8 @@ public class EmployeeServices(IEmployeeRepository _repository, IMapper _mapper, 
 
     public async Task<GResponse<EmployeeLoginDto>> Login(EmpLogin loginDto)
     {
-        var user = await _repository.Where(u => u.Username == loginDto.Username )!.Include(c => c.Citizen).Include(o => o.Org).Include(x=>x.GroupUser).FirstOrDefaultAsync();
+        var user = await _repository.Where(u => u.Username == loginDto.Username)!.Include(c => c.Citizen).Include(o => o.Org).Include(x => x.GroupUser).ThenInclude(g=>g.Group).FirstOrDefaultAsync();
+
         if (user == null)
             throw new ApplicationException("UserName or Password is not valid");
 
@@ -60,12 +61,12 @@ public class EmployeeServices(IEmployeeRepository _repository, IMapper _mapper, 
         {
             Guid tokenId = Guid.NewGuid();
          
-            Dictionary<string, string> claims = new()
-            {
-                    { "EmpId", user.Id.ToString() },
-                    { "CitizenId", user.Citizenid.ToString() ??""},
-                    {"GroupUser" , user.GroupUser.ToString()! }
-            };
+        Dictionary<string, string> claims = new()
+        {
+                { "EmpId", user.Id.ToString() },
+                { "CitizenId", user.Citizenid.ToString() ??""},
+                {"GroupUser" , string.Join(", ", user.GroupUser.Select(x => x.Group.GroupName)) }
+        };
             var token = _tokenService.Create(claims, _appConfig.Jwt!.ExpirytimeinMinutes);
             _presistanceService.Set($"Token_{tokenId}", token, TimeSpan.FromMinutes(_appConfig.Jwt.ExpirytimeinMinutes * 24 * 60));
 
@@ -83,6 +84,7 @@ public class EmployeeServices(IEmployeeRepository _repository, IMapper _mapper, 
             emp.NID = user.Citizen!.Nid!;
             emp.OrgName = user.Org!.OrgName;
             emp.ExpirytimeinMinutes = _appConfig.Jwt.ExpirytimeinMinutes;
+            emp.Roles = user.GroupUser.Select(x => x.Group!.GroupName).ToList()!;
             return GResponse<EmployeeLoginDto>.CreateSuccess(emp);
         }
         else
