@@ -13,5 +13,5 @@ public class CounterServicesDto
     [JsonPropertyName("serviceName")]
     public string? serviceName { get; set; }
     [JsonPropertyName("counterName")]
-    public string?CounterName { get; set; }
+    public string? CounterName { get; set; }
 }

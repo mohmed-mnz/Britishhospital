@@ -211,7 +211,7 @@ public class AttachmetsService : IAttachmetsService
 
     public AddAttachmentsResponse UploadFileAsBase64(AssetInfo assetInfo)
     {
-        var base64 = assetInfo.buffer!.Split(',')[1];    
+        var base64 = assetInfo.buffer!.Split(',')[1];
 
         byte[] bytes = Convert.FromBase64String(base64);
 

@@ -1,23 +1,23 @@
 using APIs.Handlers;
+using Booking.Middlewares;
+using Booking.MiddleWares;
+using BussinesLayer;
 using DataLayer;
 using DbUp;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.ResponseCompression;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using SharedConfig;
-using BussinesLayer;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
+using System.IO.Compression;
 using System.Text;
 using System.Text.Json.Serialization;
-using Microsoft.AspNetCore.ResponseCompression;
-using System.IO.Compression;
-using Booking.MiddleWares;
-using Booking.Middlewares;
 internal class Program
 {
     private static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
-        
+
         #region Configuration
 
         AppConfiguration appConfiguration;
@@ -111,7 +111,7 @@ internal class Program
         );
         #endregion
 
-    
+
 
         builder.Services.AddControllers();
         builder.Services.RegisterDataLayerDI(appConfiguration);
@@ -131,7 +131,7 @@ internal class Program
         builder.Services.Configure<GzipCompressionProviderOptions>(options =>
         {
             options.Level = CompressionLevel.Fastest;
-        }); 
+        });
         #endregion
 
         builder.Services.AddSwaggerGen();
@@ -153,8 +153,8 @@ internal class Program
             app.UseSwagger();
             app.UseSwaggerUI();
         }
-        app.UseCors(cors);  
-        
+        app.UseCors(cors);
+
         app.UseHttpsRedirection();
 
         app.UseResponseCompression();

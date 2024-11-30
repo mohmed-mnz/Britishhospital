@@ -10,6 +10,6 @@ public interface ICountersServices
     Task<GResponse<CountersDto>> AddCounter(CountersAddDto model);
     Task<GResponse<CountersDto>> UpdateCounter(CountersUpdateDto model);
     Task<GResponse<bool>> DeleteCounter(int id);
-    Task<GResponse<IEnumerable<CountersDto>>>GetAllBasedonorgid(int orgid);
+    Task<GResponse<IEnumerable<CountersDto>>> GetAllBasedonorgid(int orgid);
 
 }

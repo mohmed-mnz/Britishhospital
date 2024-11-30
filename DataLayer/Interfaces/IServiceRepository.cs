@@ -3,6 +3,6 @@ using Models.Models;
 
 namespace DataLayer.Interfaces;
 
-public interface IServiceRepository:IRepository<Service>
+public interface IServiceRepository : IRepository<Service>
 {
 }

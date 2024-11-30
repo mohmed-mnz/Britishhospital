@@ -30,7 +30,7 @@ public class DisplayCountersServices : IDisplayCounterServices
 
     public async Task<GResponse<bool>> DeleteCounterAsync(int id)
     {
-        var counter =await _repository.Where(x => x.Id == id)!.FirstOrDefaultAsync();
+        var counter = await _repository.Where(x => x.Id == id)!.FirstOrDefaultAsync();
         if (counter == null)
         {
             throw new ApplicationException("Counter not found");
@@ -54,7 +54,7 @@ public class DisplayCountersServices : IDisplayCounterServices
 
     public async Task<GResponse<IEnumerable<DisplayCountersDto>>> GetCountersAsync()
     {
-        var counters =await _repository.AsQueryable()!.Include(x => x.Counter).Include(x => x.Display).AsSplitQuery().ToListAsync();
+        var counters = await _repository.AsQueryable()!.Include(x => x.Counter).Include(x => x.Display).AsSplitQuery().ToListAsync();
 
         var countersDto = _mapper.Map<IEnumerable<DisplayCountersDto>>(counters);
         return GResponse<IEnumerable<DisplayCountersDto>>.CreateSuccess(countersDto);

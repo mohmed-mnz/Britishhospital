@@ -4,10 +4,10 @@ using Models.Models;
 
 namespace DataLayer.Repositories;
 
-public class CitizenRepository:Repository<Citizen>, ICitizenRepository
+public class CitizenRepository : Repository<Citizen>, ICitizenRepository
 {
-    public CitizenRepository(BritshHosbitalContext context):base(context)
+    public CitizenRepository(BritshHosbitalContext context) : base(context)
     {
-        
+
     }
 }

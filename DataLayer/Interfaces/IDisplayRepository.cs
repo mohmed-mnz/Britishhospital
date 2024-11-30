@@ -3,6 +3,6 @@ using Models.Models;
 
 namespace DataLayer.Interfaces;
 
-public interface IDisplayRepository:IRepository<Display>
+public interface IDisplayRepository : IRepository<Display>
 {
 }

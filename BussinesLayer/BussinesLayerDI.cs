@@ -7,7 +7,7 @@ using ServiceLayer;
 
 namespace BussinesLayer;
 
-public  static  class BussinesLayerDI
+public static class BussinesLayerDI
 {
     public static void RegisterBussinesLayerDi(this IServiceCollection services)
     {
@@ -23,10 +23,10 @@ public  static  class BussinesLayerDI
         services.AddScoped<IEmployeeServices, EmployeeServices>();
         services.AddScoped<IGroupServices, GroupServices>();
         services.AddScoped<IGroupUserServices, GroupUserServices>();
-        services.AddScoped<IDisplayAdvertsServices,DisplayAdvertsServices>();
+        services.AddScoped<IDisplayAdvertsServices, DisplayAdvertsServices>();
         services.AddScoped<IDisplayCounterServices, DisplayCountersServices>();
         services.AddScoped<ICounterServicesServices, CounterServicesServices>();
-        services.AddScoped<IorganizationServieces,organizationServieces>();
+        services.AddScoped<IorganizationServieces, organizationServieces>();
         services.AddScoped<IBookingSettingOrgServices, BookingSettingOrgServices>();
 
     }

@@ -71,7 +71,7 @@ public class EgyptianNidValidationAttribute : ValidationAttribute
             if (i % 2 == 0)
             {
                 digit *= 2;
-                if (digit > 9) digit -= 9; 
+                if (digit > 9) digit -= 9;
             }
 
             sum += digit;

@@ -22,7 +22,7 @@ public class GroupUserServices(IGroupUserRepository groupUserRepository, IMapper
 
     public async Task<GResponse<bool>> DeleteGroupUserAsync(int groupUserId)
     {
-        var groupUser =await groupUserRepository.FindAsync(groupUserId)!;
+        var groupUser = await groupUserRepository.FindAsync(groupUserId)!;
         if (groupUser == null)
             throw new ApplicationException("GroupUser not found");
         groupUserRepository.Delete(groupUser);
@@ -39,21 +39,21 @@ public class GroupUserServices(IGroupUserRepository groupUserRepository, IMapper
 
     public async Task<GResponse<IEnumerable<GroupUserDto>>> GetGroupUsersAsync()
     {
-        var groupUsers =await groupUserRepository.AsQueryable().Include(x => x.Group).Include(z => z.Emp.Citizen).AsSplitQuery().ToListAsync();
+        var groupUsers = await groupUserRepository.AsQueryable().Include(x => x.Group).Include(z => z.Emp.Citizen).AsSplitQuery().ToListAsync();
         var groupUserDtos = mapper.Map<IEnumerable<GroupUserDto>>(groupUsers);
         return GResponse<IEnumerable<GroupUserDto>>.CreateSuccess(groupUserDtos);
     }
 
     public async Task<GResponse<IEnumerable<GroupUserDto>>> GetGroupUsersByGroupIdAsync(int groupId)
     {
-        var groupUsers =await groupUserRepository.AsQueryable().Include(x => x.Group).Include(z => z.Emp.Citizen).AsSplitQuery().Where(x => x.GroupId == groupId).ToListAsync();
+        var groupUsers = await groupUserRepository.AsQueryable().Include(x => x.Group).Include(z => z.Emp.Citizen).AsSplitQuery().Where(x => x.GroupId == groupId).ToListAsync();
         var groupUserDtos = mapper.Map<IEnumerable<GroupUserDto>>(groupUsers);
         return GResponse<IEnumerable<GroupUserDto>>.CreateSuccess(groupUserDtos);
     }
 
     public async Task<GResponse<IEnumerable<GroupUserDto>>> GetGroupUsersByUserIdAsync(int EmpId)
     {
-        var groupUsers =await groupUserRepository.AsQueryable().Include(x => x.Group).Include(z => z.Emp.Citizen).AsSplitQuery().Where(x => x.EmpId == EmpId).ToListAsync();
+        var groupUsers = await groupUserRepository.AsQueryable().Include(x => x.Group).Include(z => z.Emp.Citizen).AsSplitQuery().Where(x => x.EmpId == EmpId).ToListAsync();
         var groupUserDtos = mapper.Map<IEnumerable<GroupUserDto>>(groupUsers);
         return GResponse<IEnumerable<GroupUserDto>>.CreateSuccess(groupUserDtos);
 
@@ -61,7 +61,7 @@ public class GroupUserServices(IGroupUserRepository groupUserRepository, IMapper
 
     public async Task<GResponse<GroupUserDto>> UpdateGroupUserAsync(GroupUserUpdateDto groupUserUpdateDto)
     {
-        var groupUser =await groupUserRepository.Where(x=>x.Id== groupUserUpdateDto.Id)!.Include(x => x.Group).Include(z => z.Emp.Citizen).AsSplitQuery().FirstOrDefaultAsync();
+        var groupUser = await groupUserRepository.Where(x => x.Id == groupUserUpdateDto.Id)!.Include(x => x.Group).Include(z => z.Emp.Citizen).AsSplitQuery().FirstOrDefaultAsync();
         if (groupUser == null)
             throw new ApplicationException("GroupUser not found");
         groupUser = mapper.Map(groupUserUpdateDto, groupUser);

@@ -3,6 +3,6 @@ using Models.Models;
 
 namespace DataLayer.Interfaces;
 
-public interface IDisplayCountersRepository:IRepository<DisplayCounters>
+public interface IDisplayCountersRepository : IRepository<DisplayCounters>
 {
 }

@@ -60,5 +60,5 @@ public class CounterServicesController : ControllerBase
         var result = await _counterServicesServices.DeleteAsync(id);
         return Ok(result);
     }
-    
+
 }

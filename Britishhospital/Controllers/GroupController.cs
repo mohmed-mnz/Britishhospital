@@ -6,9 +6,9 @@ namespace BritshHospital.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class GroupController(IGroupServices _services ) : ControllerBase
+public class GroupController(IGroupServices _services) : ControllerBase
 {
-    [HttpGet("get-all-groups") ]
+    [HttpGet("get-all-groups")]
     public async Task<IActionResult> GetGroups()
     {
         var result = await _services.GetGroupsAsync();

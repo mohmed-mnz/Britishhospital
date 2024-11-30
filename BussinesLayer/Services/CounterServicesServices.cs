@@ -16,12 +16,12 @@ public class CounterServicesServices(ICounterServicesRepository counterServicesR
         await counterServicesRepository.Commit();
         counterServices = await counterServicesRepository.AsQueryable().Include(x => x.Counter).Include(x => x.Service).FirstOrDefaultAsync(x => x.Id == counterServices.Id);
         var result = mapper.Map<CounterServicesDto>(counterServices);
-        return  GResponse<CounterServicesDto>.CreateSuccess(result);
+        return GResponse<CounterServicesDto>.CreateSuccess(result);
     }
 
     public async Task<GResponse<bool>> DeleteAsync(int id)
     {
-        var counterServices =await counterServicesRepository.AsQueryable().FirstOrDefaultAsync(x => x.Id == id);
+        var counterServices = await counterServicesRepository.AsQueryable().FirstOrDefaultAsync(x => x.Id == id);
         if (counterServices == null)
         {
             throw new ApplicationException("CounterServices not found");
@@ -33,21 +33,21 @@ public class CounterServicesServices(ICounterServicesRepository counterServicesR
 
     public async Task<GResponse<IEnumerable<CounterServicesDto>>> GetAsync()
     {
-        var counterServices =await counterServicesRepository.AsQueryable().Include(x => x.Counter).Include(x => x.Service).ToListAsync();
+        var counterServices = await counterServicesRepository.AsQueryable().Include(x => x.Counter).Include(x => x.Service).ToListAsync();
         var result = mapper.Map<IEnumerable<CounterServicesDto>>(counterServices);
         return GResponse<IEnumerable<CounterServicesDto>>.CreateSuccess(result);
     }
 
     public async Task<GResponse<IEnumerable<CounterServicesDto>>> GetbasedonCounterIdAsync(int counterId)
     {
-        var counterServices =await counterServicesRepository.AsQueryable().Include(x => x.Counter).Include(x => x.Service).Where(x => x.CounterId == counterId).ToListAsync();
+        var counterServices = await counterServicesRepository.AsQueryable().Include(x => x.Counter).Include(x => x.Service).Where(x => x.CounterId == counterId).ToListAsync();
         var result = mapper.Map<IEnumerable<CounterServicesDto>>(counterServices);
         return GResponse<IEnumerable<CounterServicesDto>>.CreateSuccess(result);
     }
 
     public async Task<GResponse<CounterServicesDto>> GetByIdAsync(int id)
     {
-        var counterServices =await counterServicesRepository.AsQueryable().Include(x => x.Counter).Include(x => x.Service).FirstOrDefaultAsync(x => x.Id == id);
+        var counterServices = await counterServicesRepository.AsQueryable().Include(x => x.Counter).Include(x => x.Service).FirstOrDefaultAsync(x => x.Id == id);
         if (counterServices == null)
         {
             throw new ApplicationException("CounterServices not found");

@@ -3,6 +3,6 @@ using Models.Models;
 
 namespace DataLayer.Interfaces;
 
-public interface ICounterRepository:IRepository<Counters>
+public interface ICounterRepository : IRepository<Counters>
 {
 }

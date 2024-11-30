@@ -4,10 +4,10 @@ using Models.Models;
 
 namespace DataLayer.Repositories;
 
-public class CounterServicesRepository:Repository<CounterServices>, ICounterServicesRepository
+public class CounterServicesRepository : Repository<CounterServices>, ICounterServicesRepository
 {
-    public CounterServicesRepository(BritshHosbitalContext context):base(context)
+    public CounterServicesRepository(BritshHosbitalContext context) : base(context)
     {
-        
+
     }
 }

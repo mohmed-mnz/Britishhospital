@@ -4,10 +4,10 @@ using Models.Models;
 
 namespace DataLayer.Repositories;
 
-public class AdvertismentRepository:Repository<Advertisment>, IAdvertismentRepository
+public class AdvertismentRepository : Repository<Advertisment>, IAdvertismentRepository
 {
-    public AdvertismentRepository(BritshHosbitalContext context ):base(context)
+    public AdvertismentRepository(BritshHosbitalContext context) : base(context)
     {
-        
+
     }
 }

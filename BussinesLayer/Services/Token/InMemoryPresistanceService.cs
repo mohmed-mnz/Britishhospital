@@ -15,9 +15,9 @@ public class InMemoryPresistanceService : IPresistanceService
         _keys = new ConcurrentBag<string>();
 
     }
-    public T Set<T>(string key,T data,TimeSpan Expiry)
+    public T Set<T>(string key, T data, TimeSpan Expiry)
     {
-        return _cache.Set<T>(key, data, Expiry);   
+        return _cache.Set<T>(key, data, Expiry);
     }
     public T? Get<T>(string key)
     {

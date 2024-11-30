@@ -57,16 +57,16 @@ public class ArchiveService : IArchiveServices
 
     public class FileData
     {
-        public string FilePath { get; set; } = string.Empty; 
+        public string FilePath { get; set; } = string.Empty;
         public string FileName { get; set; } = string.Empty;
-        public byte[] FileBytes { get; set; } = Array.Empty<byte>(); 
-        public string exe { get; set; } = string.Empty; 
+        public byte[] FileBytes { get; set; } = Array.Empty<byte>();
+        public string exe { get; set; } = string.Empty;
     }
 
     public class FileUploaded
     {
         public int ChildId { get; set; }
-        public byte[] Bytes { get; set; } = Array.Empty<byte>(); 
-        public string Extension { get; set; } = string.Empty; 
+        public byte[] Bytes { get; set; } = Array.Empty<byte>();
+        public string Extension { get; set; } = string.Empty;
     }
 }

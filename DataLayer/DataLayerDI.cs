@@ -9,7 +9,7 @@ namespace DataLayer;
 
 public static class DataLayerDi
 {
-    public static void RegisterDataLayerDI(this IServiceCollection service,AppConfiguration appConfiguration)
+    public static void RegisterDataLayerDI(this IServiceCollection service, AppConfiguration appConfiguration)
     {
         service.AddDbContext<BritshHosbitalContext>(options => options.UseSqlServer(appConfiguration.DbConfig!.BritshHospitalConnctionString));
         service.AddScoped<IAdvertismentRepository, AdvertismentRepository>();
@@ -23,9 +23,9 @@ public static class DataLayerDi
         service.AddScoped<IDisplayCountersRepository, DisplayCountersRepository>();
         service.AddScoped<IEmployeeRepository, EmployeeRepository>();
         service.AddScoped<IGroupRepository, GroupRepository>();
-        service.AddScoped<IGroupUserRepository , GroupUserRepository>();
+        service.AddScoped<IGroupUserRepository, GroupUserRepository>();
         service.AddScoped<IOrganizationRepository, OrganizationRepository>();
-        service.AddScoped<IReservationsRepository , ReservationsRepository>();
+        service.AddScoped<IReservationsRepository, ReservationsRepository>();
         service.AddScoped<IServiceRepository, ServiceRepository>();
 
     }

@@ -3,6 +3,6 @@ using Models.Models;
 
 namespace DataLayer.Interfaces;
 
-public interface ICitizenRepository: IRepository<Citizen>
+public interface ICitizenRepository : IRepository<Citizen>
 {
 }

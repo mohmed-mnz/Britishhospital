@@ -7,13 +7,13 @@ using Models.Models;
 
 namespace BussinesLayer.Services;
 
-public class AdvertismentServices(IAdvertismentRepository _advertismentRepository, IMapper _mapper ,  IAttachmetsService _attachmentServices) : IAdvertismentServices
+public class AdvertismentServices(IAdvertismentRepository _advertismentRepository, IMapper _mapper, IAttachmetsService _attachmentServices) : IAdvertismentServices
 {
     public async Task<GResponse<AdvertismentDto>> AddAdvertisment(AdvertismentAddDto addDto)
     {
         var advertisment = _mapper.Map<Advertisment>(addDto);
         var date = DateTime.Now.ToString("yyyy/MM/ddd").Replace('/', '-');
-       
+
         if (advertisment.Mediatype == "image")
         {
             var extension = addDto.MediaFile!.Split(';')[0].Split('/')[1];
@@ -64,7 +64,7 @@ public class AdvertismentServices(IAdvertismentRepository _advertismentRepositor
         var advert = await _advertismentRepository.FindAsync(id)!;
         if (advert == null)
         {
-          throw new ApplicationException("Advertisment not found");
+            throw new ApplicationException("Advertisment not found");
         }
         _attachmentServices.DeleteFile(advert.MediaFile!, "");
 
@@ -90,7 +90,7 @@ public class AdvertismentServices(IAdvertismentRepository _advertismentRepositor
 
     public async Task<GResponse<List<AdvertismentDto>>> GetAllAdvertisments()
     {
-        var adverts =await _advertismentRepository.GetAllAsync();
+        var adverts = await _advertismentRepository.GetAllAsync();
         var result = _mapper.Map<List<AdvertismentDto>>(adverts);
         foreach (var item in result)
         {
@@ -107,7 +107,7 @@ public class AdvertismentServices(IAdvertismentRepository _advertismentRepositor
         {
             throw new ApplicationException("Advertisment not found");
         }
-        advert= _mapper.Map(model, advert);
+        advert = _mapper.Map(model, advert);
         if (model.MediaFile != null)
         {
             var date = DateTime.Now.ToString("yyyy/MM/ddd").Replace('/', '-');

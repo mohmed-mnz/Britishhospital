@@ -1,6 +1,6 @@
 ﻿namespace SharedConfig;
 
-public  class DbConfig
+public class DbConfig
 {
     public string BritshHospitalConnctionString { get; set; }
 }

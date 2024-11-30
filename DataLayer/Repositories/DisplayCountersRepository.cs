@@ -4,10 +4,10 @@ using Models.Models;
 
 namespace DataLayer.Repositories;
 
-public class DisplayCountersRepository:Repository<DisplayCounters>, IDisplayCountersRepository
+public class DisplayCountersRepository : Repository<DisplayCounters>, IDisplayCountersRepository
 {
-    public DisplayCountersRepository(BritshHosbitalContext context):base(context)
+    public DisplayCountersRepository(BritshHosbitalContext context) : base(context)
     {
-        
+
     }
 }

@@ -10,12 +10,12 @@ using SharedConfig;
 
 namespace BussinesLayer.Services;
 
-public class EmployeeServices(IEmployeeRepository _repository, IMapper _mapper, ICitizenRepository citizenRepository , ITokenService _tokenService , IPresistanceService _presistanceService , AppConfiguration _appConfig) : IEmployeeServices
+public class EmployeeServices(IEmployeeRepository _repository, IMapper _mapper, ICitizenRepository citizenRepository, ITokenService _tokenService, IPresistanceService _presistanceService, AppConfiguration _appConfig) : IEmployeeServices
 {
     public async Task<GResponse<bool>> DeleteEmployeeAsync(int id)
     {
-        var emp =await  _repository.FindAsync(id)! ;
-        if (emp == null )
+        var emp = await _repository.FindAsync(id)!;
+        if (emp == null)
         {
             throw new ApplicationException("emp Not Found");
         }
@@ -26,42 +26,42 @@ public class EmployeeServices(IEmployeeRepository _repository, IMapper _mapper, 
 
     public async Task<GResponse<EmployeeDto>> GetEmployeeByIdAsync(int id)
     {
-        var employee = await _repository.FindAsync(id)! ;
+        var employee = await _repository.FindAsync(id)!;
         if (employee == null)
             throw new ApplicationException("emp not found");
-        var employeeDto = _mapper.Map<EmployeeDto>(employee) ;
-        return GResponse<EmployeeDto>.CreateSuccess(employeeDto) ;
+        var employeeDto = _mapper.Map<EmployeeDto>(employee);
+        return GResponse<EmployeeDto>.CreateSuccess(employeeDto);
     }
 
     public async Task<GResponse<IEnumerable<EmployeeDto>>> GetEmployeeByOrgIdListAsync(int orgId)
     {
-        var employees =await _repository.Where(x=>x.Orgid==orgId)!.Include(x=>x.Org).Include(z=>z.Citizen).AsSplitQuery().ToListAsync();
+        var employees = await _repository.Where(x => x.Orgid == orgId)!.Include(x => x.Org).Include(z => z.Citizen).AsSplitQuery().ToListAsync();
         var employeeDtos = _mapper.Map<IEnumerable<EmployeeDto>>(employees);
         return GResponse<IEnumerable<EmployeeDto>>.CreateSuccess(employeeDtos);
     }
 
     public async Task<GResponse<IEnumerable<EmployeeDto>>> GetEmployeeListAsync()
     {
-        var employees =await _repository.AsQueryable()!.Include(x => x.Org).Include(z => z.Citizen).AsSplitQuery().ToListAsync();
+        var employees = await _repository.AsQueryable()!.Include(x => x.Org).Include(z => z.Citizen).AsSplitQuery().ToListAsync();
         var employeeDtos = _mapper.Map<IEnumerable<EmployeeDto>>(employees);
         return GResponse<IEnumerable<EmployeeDto>>.CreateSuccess(employeeDtos);
     }
 
     public async Task<GResponse<EmployeeLoginDto>> Login(EmpLogin loginDto)
     {
-        var user = await _repository.Where(u => u.Username == loginDto.Username)!.Include(c => c.Citizen).Include(o => o.Org).Include(x => x.GroupUser).ThenInclude(g=>g.Group).FirstOrDefaultAsync();
+        var user = await _repository.Where(u => u.Username == loginDto.Username)!.Include(c => c.Citizen).Include(o => o.Org).Include(x => x.GroupUser).ThenInclude(g => g.Group).FirstOrDefaultAsync();
 
         if (user == null)
             throw new ApplicationException("UserName or Password is not valid");
 
-        if(user.IsActive == false)
+        if (user.IsActive == false)
             throw new ApplicationException("UserName or Password is not valid or Not Active User");
 
         if (isValidPassword(loginDto.Password, user.Password))
         {
             Guid tokenId = Guid.NewGuid();
-         
-        Dictionary<string, string> claims = new()
+
+            Dictionary<string, string> claims = new()
         {
                 { "EmpId", user.Id.ToString() },
                 { "CitizenId", user.Citizenid.ToString() ??""},
@@ -76,7 +76,7 @@ public class EmployeeServices(IEmployeeRepository _repository, IMapper _mapper, 
                     };
 
             var emp = new EmployeeLoginDto();
-            emp.CTZNID = user.Citizenid ??0;
+            emp.CTZNID = user.Citizenid ?? 0;
             emp.EMPID = user.Id;
             emp.Token = _tokenService.Create(tokenIdClaims, _appConfig.Jwt!.ExpirytimeinMinutes * 24 * 60);
             emp.UserName = user.Username;
@@ -103,7 +103,7 @@ public class EmployeeServices(IEmployeeRepository _repository, IMapper _mapper, 
             if (emp == null)
             {
                 emp!.Username = employeeAddDto.Username;
-                emp.Password =await _repository.EncryptPassword(employeeAddDto.Password);
+                emp.Password = await _repository.EncryptPassword(employeeAddDto.Password);
                 emp.Citizenid = citizenexist.Citizenid;
                 emp.Orgid = employeeAddDto.Orgid;
                 emp.IsActive = true;
@@ -151,7 +151,7 @@ public class EmployeeServices(IEmployeeRepository _repository, IMapper _mapper, 
 
     public async Task<GResponse<bool>> SetEmployeeAsNotActive(int empid)
     {
-        var emp =await _repository.AsQueryable()!.FirstOrDefaultAsync(x => x.Id == empid);
+        var emp = await _repository.AsQueryable()!.FirstOrDefaultAsync(x => x.Id == empid);
         if (emp == null)
         {
             return GResponse<bool>.CreateFailure("404", "Employee Not Found");
@@ -163,7 +163,7 @@ public class EmployeeServices(IEmployeeRepository _repository, IMapper _mapper, 
 
     public async Task<GResponse<bool>> UpdateEmployeeData(EmployeeUpdateDataDto employeeUpdateDataDto)
     {
-        var emp =await _repository.AsQueryable()!.Where(x => x.Id == employeeUpdateDataDto.Id).Include(x=>x.Citizen).FirstOrDefaultAsync();
+        var emp = await _repository.AsQueryable()!.Where(x => x.Id == employeeUpdateDataDto.Id).Include(x => x.Citizen).FirstOrDefaultAsync();
         if (emp == null)
         {
             return GResponse<bool>.CreateFailure("404", "Employee Not Found");

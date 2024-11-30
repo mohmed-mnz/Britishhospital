@@ -16,11 +16,11 @@ namespace Booking.Middlewares
         {
             _next = next;
             _tokenService = tokenService;
-             _presistanceService = presistanceService;
+            _presistanceService = presistanceService;
         }
         public Task Invoke(HttpContext httpContext)
         {
-            string? authorization = httpContext.Request.Headers["Authorization"]; 
+            string? authorization = httpContext.Request.Headers["Authorization"];
             if (!string.IsNullOrEmpty(authorization))
             {
                 string token = authorization.Split(' ')[1];
@@ -30,14 +30,17 @@ namespace Booking.Middlewares
                 {
 
                     var tokenId = claims.FindFirst("TokenId")?.Value;
-                    if (tokenId != null) {
-                        string  backToken = _presistanceService.Get<string>($"Token_{tokenId}");
+                    if (tokenId != null)
+                    {
+                        string backToken = _presistanceService.Get<string>($"Token_{tokenId}");
 
-                        if (!string.IsNullOrEmpty(backToken)) {
+                        if (!string.IsNullOrEmpty(backToken))
+                        {
                             var backClaimes = _tokenService.Validate(backToken, out bool isBackTokenExpired);
 
-                            if (!isBackTokenExpired) { 
-                            Thread.CurrentPrincipal= backClaimes;
+                            if (!isBackTokenExpired)
+                            {
+                                Thread.CurrentPrincipal = backClaimes;
                                 httpContext.User = backClaimes;
                                 _presistanceService.Set<string>($"Token_{tokenId}", backToken, TimeSpan.FromMinutes(30));
                             }

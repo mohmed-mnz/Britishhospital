@@ -1,7 +1,7 @@
 ﻿using ApiContracts.Counters;
 using BussinesLayer.Interfaces;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc; 
+using Microsoft.AspNetCore.Mvc;
 
 namespace BritshHospital.Controllers;
 

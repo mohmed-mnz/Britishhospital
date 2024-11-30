@@ -4,11 +4,11 @@ using Models.Models;
 
 namespace DataLayer.Repositories;
 
-public class OrganizationRepository:Repository<Organization> , IOrganizationRepository
+public class OrganizationRepository : Repository<Organization>, IOrganizationRepository
 {
     public OrganizationRepository(BritshHosbitalContext context) : base(context)
     {
 
-        
+
     }
 }

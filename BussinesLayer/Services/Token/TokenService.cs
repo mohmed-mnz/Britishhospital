@@ -65,11 +65,11 @@ namespace ServiceLayer
                 var token = tokenHandler.CreateToken(TokenDescription);
                 return tokenHandler.WriteToken(token);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw;
             }
-       
+
         }
 
 
@@ -77,7 +77,7 @@ namespace ServiceLayer
         {
             AppConfiguration jwtConfig = _configuration.Get<AppConfiguration>();
             IsExpired = false;
-            ClaimsPrincipal ?ClaimsPrincipal = null;
+            ClaimsPrincipal? ClaimsPrincipal = null;
             if (Token != string.Empty)
             {
                 var now = DateTime.UtcNow;

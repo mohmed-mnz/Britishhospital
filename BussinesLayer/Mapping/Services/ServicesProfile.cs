@@ -10,7 +10,7 @@ public class ServicesProfile : Profile
     {
         CreateMap<Service, ServiceDto>()
             .ReverseMap();
-        CreateMap<ServiceAddDto,Service>()
+        CreateMap<ServiceAddDto, Service>()
             .ReverseMap();
         CreateMap<ServiceUpdateDto, Service>()
             .ReverseMap();

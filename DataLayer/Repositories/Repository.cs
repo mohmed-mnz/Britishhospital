@@ -1,5 +1,4 @@
 ﻿using DataAccessLayer.Interfaces;
-using DataLayer;
 using Microsoft.EntityFrameworkCore;
 using Models.Models;
 using System.Linq.Expressions;
@@ -57,19 +56,20 @@ public class Repository<T> : IRepository<T> where T : class
     private void SetDefaultValues()
     {
 
- 
+
     }
 
-    private bool IsEntityDerivedFromBaseClass(object entity,Type baseDomain) {
+    private bool IsEntityDerivedFromBaseClass(object entity, Type baseDomain)
+    {
         Type entityType = entity.GetType();
-        bool isEntityDerived = baseDomain.IsAssignableFrom(entityType);   
-        return isEntityDerived;     
+        bool isEntityDerived = baseDomain.IsAssignableFrom(entityType);
+        return isEntityDerived;
     }
 
     private bool EntityHasProperty(object entity, string property)
     {
         Type entityType = entity.GetType();
-        return entityType.GetProperty(property) != null;    
+        return entityType.GetProperty(property) != null;
     }
 
     public async Task<List<T>> GetAllAsync()

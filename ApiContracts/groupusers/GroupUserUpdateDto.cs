@@ -10,5 +10,5 @@ public class GroupUserUpdateDto
     public int? GroupId { get; set; }
     [JsonPropertyName("empId")]
     public int? EmpId { get; set; }
-   
+
 }

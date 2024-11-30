@@ -1,7 +1,5 @@
 ﻿using ApiContracts.Advertisment;
 using BussinesLayer.Interface;
-using BussinesLayer.Interfaces;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BritshHospital.Controllers;

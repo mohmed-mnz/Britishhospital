@@ -3,6 +3,6 @@ using Models.Models;
 
 namespace DataLayer.Interfaces;
 
-public interface IBookingSettingOrgRepository:IRepository<BookingSettingOrg>
+public interface IBookingSettingOrgRepository : IRepository<BookingSettingOrg>
 {
 }

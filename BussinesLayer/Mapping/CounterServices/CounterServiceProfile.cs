@@ -1,6 +1,5 @@
 ﻿using ApiContracts.CounterService;
 using AutoMapper;
-using Models.Models;
 
 namespace BussinesLayer.Mapping.CounterServices;
 

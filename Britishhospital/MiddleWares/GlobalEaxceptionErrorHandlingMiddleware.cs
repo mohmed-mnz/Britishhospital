@@ -17,7 +17,7 @@ public class GlobalEaxceptionErrorHandlingMiddleware : IMiddleware
     {
         try
         {
-            await next (context);
+            await next(context);
         }
         catch (ApplicationException ex)
         {
@@ -47,7 +47,7 @@ public class GlobalEaxceptionErrorHandlingMiddleware : IMiddleware
                     _logger.LogError(ex, ex.Message);
 
                     context.Response.StatusCode = 409;
-                    var problemDetail=new GResponse<bool>
+                    var problemDetail = new GResponse<bool>
                     {
                         Error = null,
                         StatusCode = context.Response.StatusCode.ToString(),
@@ -58,8 +58,8 @@ public class GlobalEaxceptionErrorHandlingMiddleware : IMiddleware
                     context.Response.ContentType = "application/json";
                     await context.Response.WriteAsJsonAsync(problemDetail);
                 }
-               else if(ex.InnerException.ToString().Contains("The DELETE statement conflicted with the REFERENCE constraint"))
-               {
+                else if (ex.InnerException.ToString().Contains("The DELETE statement conflicted with the REFERENCE constraint"))
+                {
                     _logger.LogError(ex, ex.Message);
 
                     context.Response.StatusCode = 408;
@@ -73,7 +73,7 @@ public class GlobalEaxceptionErrorHandlingMiddleware : IMiddleware
                     };
                     context.Response.ContentType = "application/json";
                     await context.Response.WriteAsJsonAsync(problemDetail);
-               }
+                }
                 else
                 {
                     _logger.LogError(ex, ex.Message);
@@ -90,7 +90,7 @@ public class GlobalEaxceptionErrorHandlingMiddleware : IMiddleware
 
                     await context.Response.WriteAsJsonAsync(problemDetailss);
                 }
-                
+
             }
             _logger.LogError(ex, ex.Message);
 

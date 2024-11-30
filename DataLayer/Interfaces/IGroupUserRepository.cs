@@ -3,6 +3,6 @@ using Models.Models;
 
 namespace DataLayer.Interfaces;
 
-public interface IGroupUserRepository:IRepository<GroupUser>
+public interface IGroupUserRepository : IRepository<GroupUser>
 {
 }

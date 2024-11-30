@@ -3,6 +3,6 @@ using Models.Models;
 
 namespace DataLayer.Interfaces;
 
-public interface IDisplayAdvertsRepository:IRepository<DisplayAdverts>
+public interface IDisplayAdvertsRepository : IRepository<DisplayAdverts>
 {
 }

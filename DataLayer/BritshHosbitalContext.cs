@@ -70,7 +70,7 @@ public partial class BritshHosbitalContext : DbContext
             entity.Property(e => e.Sex).HasColumnName("sex");
         });
 
-     
+
 
         modelBuilder.Entity<CounterServices>(entity =>
         {

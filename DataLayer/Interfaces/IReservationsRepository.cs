@@ -3,6 +3,6 @@ using Models.Models;
 
 namespace DataLayer.Interfaces;
 
-public interface IReservationsRepository:IRepository<Reservations>
+public interface IReservationsRepository : IRepository<Reservations>
 {
 }

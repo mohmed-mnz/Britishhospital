@@ -30,7 +30,7 @@ public class GroupServices(IGroupRepository _repository, IMapper _mapper) : IGro
 
     public async Task<GResponse<GroupDto>> GetGroupAsync(int groupId)
     {
-        var group =await _repository.FindAsync(groupId)!;
+        var group = await _repository.FindAsync(groupId)!;
         if (group == null)
             throw new ApplicationException("Group not found");
         return GResponse<GroupDto>.CreateSuccess(_mapper.Map<GroupDto>(group));
@@ -38,7 +38,7 @@ public class GroupServices(IGroupRepository _repository, IMapper _mapper) : IGro
 
     public async Task<GResponse<IEnumerable<GroupDto>>> GetGroupsAsync()
     {
-        var groups =await _repository.GetAllAsync();
+        var groups = await _repository.GetAllAsync();
         return GResponse<IEnumerable<GroupDto>>.CreateSuccess(_mapper.Map<IEnumerable<GroupDto>>(groups));
     }
 
@@ -47,7 +47,7 @@ public class GroupServices(IGroupRepository _repository, IMapper _mapper) : IGro
         var group = await _repository.FindAsync(groupUpdateDto.Id)!;
         if (group == null)
             throw new ApplicationException("Group not found");
-        group= _mapper.Map(groupUpdateDto, group);
+        group = _mapper.Map(groupUpdateDto, group);
         await _repository.Commit();
         return GResponse<GroupDto>.CreateSuccess(_mapper.Map<GroupDto>(group));
 

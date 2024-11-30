@@ -5,7 +5,6 @@ using BussinesLayer.Interfaces;
 using DataLayer.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Models.Models;
-using System.Security.Cryptography;
 
 namespace BussinesLayer.Services;
 
@@ -13,7 +12,7 @@ public class organizationServieces(IOrganizationRepository _repository, IMapper 
 {
     public async Task<GResponse<OrganizationDto>> AddORganization(OrganizationAddDto organizationDto)
     {
-        var org= _mapper.Map<Organization>(organizationDto);
+        var org = _mapper.Map<Organization>(organizationDto);
         await _repository.InsertAsync(org);
         await _repository.Commit();
         var orgDto = _mapper.Map<OrganizationDto>(organizationDto);
@@ -22,7 +21,7 @@ public class organizationServieces(IOrganizationRepository _repository, IMapper 
 
     public async Task<GResponse<bool>> DeleteOrganization(int orgid)
     {
-        var org= await _repository.Where(x=>x.Orgid==orgid)!.FirstOrDefaultAsync();
+        var org = await _repository.Where(x => x.Orgid == orgid)!.FirstOrDefaultAsync();
         if (org == null)
             throw new ApplicationException("organizationNotFound");
         _repository.Delete(org);

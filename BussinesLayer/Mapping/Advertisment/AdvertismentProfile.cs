@@ -1,6 +1,5 @@
 ﻿using ApiContracts.Advertisment;
 using AutoMapper;
-using Models.Models;
 
 namespace BussinesLayer.Mapping.Advertisment;
 
@@ -10,9 +9,9 @@ public class AdvertismentProfile : Profile
     {
         CreateMap<Models.Models.Advertisment, AdvertismentDto>()
             .ReverseMap();
-        CreateMap<AdvertismentAddDto, Models.Models. Advertisment>()
+        CreateMap<AdvertismentAddDto, Models.Models.Advertisment>()
             .ReverseMap();
-        CreateMap<AdvertismentUpdateDto, Models.Models. Advertisment>()
+        CreateMap<AdvertismentUpdateDto, Models.Models.Advertisment>()
             .ReverseMap();
     }
 }

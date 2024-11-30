@@ -9,7 +9,7 @@ public class EmployeeAddDto
     public string Password { get; set; } = null!;
 
     public int? Orgid { get; set; }
-     
+
     public string? Email { get; set; }
     [MaxLength(11)]
     public string? MobileNumber { get; set; }

@@ -2,7 +2,7 @@
 
 namespace BussinesLayer.Mapping.DisplayCounter;
 
-public class DisplayCounterProfile: Profile
+public class DisplayCounterProfile : Profile
 {
     public DisplayCounterProfile()
     {

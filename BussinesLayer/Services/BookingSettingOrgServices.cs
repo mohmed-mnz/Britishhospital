@@ -15,14 +15,14 @@ public class BookingSettingOrgServices(IBookingSettingOrgRepository bookingSetti
         var bookingSettingOrg = mapper.Map<BookingSettingOrg>(bookingSettingOrgAddDto);
         await bookingSettingOrgRepository.InsertAsync(bookingSettingOrg);
         await bookingSettingOrgRepository.Commit();
-        bookingSettingOrg=await bookingSettingOrgRepository.Where(x => x.Id == bookingSettingOrg.Id)!.Include(o=>o.Org).FirstOrDefaultAsync();
+        bookingSettingOrg = await bookingSettingOrgRepository.Where(x => x.Id == bookingSettingOrg.Id)!.Include(o => o.Org).FirstOrDefaultAsync();
         var bookingSettingOrgDto = mapper.Map<BookingSettingOrgDto>(bookingSettingOrg);
-        return  GResponse<BookingSettingOrgDto>.CreateSuccess(bookingSettingOrgDto);
+        return GResponse<BookingSettingOrgDto>.CreateSuccess(bookingSettingOrgDto);
     }
 
     public async Task<GResponse<bool>> DeleteBookingSettingOrgAsync(int id)
     {
-      var bookingSettingOrg = await bookingSettingOrgRepository.Where(x => x.Id == id)!.FirstOrDefaultAsync();
+        var bookingSettingOrg = await bookingSettingOrgRepository.Where(x => x.Id == id)!.FirstOrDefaultAsync();
         if (bookingSettingOrg == null)
         {
             throw new ApplicationException("BookingSettingOrg not found");
@@ -35,7 +35,7 @@ public class BookingSettingOrgServices(IBookingSettingOrgRepository bookingSetti
 
     public async Task<GResponse<BookingSettingOrgDto>> GetBookingSettingOrgAsync(int id)
     {
-        var bookingSettingOrg =await bookingSettingOrgRepository.Where(x => x.Id == id)!.Include(o => o.Org).FirstOrDefaultAsync();
+        var bookingSettingOrg = await bookingSettingOrgRepository.Where(x => x.Id == id)!.Include(o => o.Org).FirstOrDefaultAsync();
         if (bookingSettingOrg == null)
         {
             throw new ApplicationException("BookingSettingOrg not found");
@@ -46,7 +46,7 @@ public class BookingSettingOrgServices(IBookingSettingOrgRepository bookingSetti
 
     public async Task<GResponse<IEnumerable<BookingSettingOrgDto>>> GetBookingSettingOrgsAsync(int orgid)
     {
-        var bookingSettingOrgs =await bookingSettingOrgRepository.Where(x => x.OrgId == orgid)!.Include(o => o.Org).ToListAsync();
+        var bookingSettingOrgs = await bookingSettingOrgRepository.Where(x => x.OrgId == orgid)!.Include(o => o.Org).ToListAsync();
         var bookingSettingOrgDtos = mapper.Map<IEnumerable<BookingSettingOrgDto>>(bookingSettingOrgs);
         return GResponse<IEnumerable<BookingSettingOrgDto>>.CreateSuccess(bookingSettingOrgDtos);
     }

@@ -36,7 +36,7 @@ public class DisplayServices(IDisplayRepository displayRepository, IMapper mappe
 
     public async Task<GResponse<IEnumerable<DisplayDto>>> GetAllBasedonorgid(int orgid)
     {
-        var displays =await displayRepository.AsQueryable().Where(x => x.Orgid == orgid).Include(x => x.Org).ToListAsync();
+        var displays = await displayRepository.AsQueryable().Where(x => x.Orgid == orgid).Include(x => x.Org).ToListAsync();
         var result = mapper.Map<List<DisplayDto>>(displays);
         return GResponse<IEnumerable<DisplayDto>>.CreateSuccess(result);
     }
@@ -44,14 +44,14 @@ public class DisplayServices(IDisplayRepository displayRepository, IMapper mappe
     public async Task<GResponse<List<DisplayDto>>> GetAllDisplays()
     {
         var
-            displays =await displayRepository.AsQueryable().Include(x => x.Org).ToListAsync();
+            displays = await displayRepository.AsQueryable().Include(x => x.Org).ToListAsync();
         var result = mapper.Map<List<DisplayDto>>(displays);
         return GResponse<List<DisplayDto>>.CreateSuccess(result);
     }
 
     public async Task<GResponse<DisplayDto>> GetDisplaybyId(int id)
     {
-        var display =await displayRepository.Where(x => x.DisplayId == id)!.Include(x => x.Org).FirstOrDefaultAsync();
+        var display = await displayRepository.Where(x => x.DisplayId == id)!.Include(x => x.Org).FirstOrDefaultAsync();
         if (display == null)
         {
             throw new ApplicationException("Display not found");

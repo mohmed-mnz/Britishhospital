@@ -41,7 +41,7 @@ public class GroupUserController(IGroupUserServices services) : ControllerBase
     [HttpGet("get-all-group-user-based-on-Group-id/{GrouId}")]
     public async Task<IActionResult> GetAllBasedOnGroupId(int GrouId)
     {
-        var result =await services.GetGroupUsersByGroupIdAsync(GrouId);
+        var result = await services.GetGroupUsersByGroupIdAsync(GrouId);
         return Ok(result);
     }
     [HttpGet("get-all-group-user-based-on-Emp-id/{EmpId}")]
