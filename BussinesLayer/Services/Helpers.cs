@@ -73,7 +73,7 @@ public static class Helpers
                 var format = image.RawFormat;
                 return ImageCodecInfo.GetImageEncoders()!
                     .FirstOrDefault(encoder => encoder.FormatID == format.Guid)!
-                    ?.FilenameExtension.Split(';')[0]!;
+                    ?.FilenameExtension!.Split(';')[0]!;
             }
         }
     }
@@ -114,17 +114,15 @@ public static class Helpers
     public static (bool, string) SaveImage(string ImgStr, string ImgName)
     {
         Image image = Base64ToImage(ImgStr);
-        String path = ""; //Path
+        String path = ""; 
 
-        //Check if directory exist
         if (!Directory.Exists(path))
         {
-            Directory.CreateDirectory(path); //Create directory if it doesn't exist
+            Directory.CreateDirectory(path); 
         }
 
         string imageName = ImgName + ".jpg";
 
-        //set the image path
         string imgPath = Path.Combine(path, imageName);
 
         try

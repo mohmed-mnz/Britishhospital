@@ -11,7 +11,7 @@ public class EmployeeLoginDto
     public int ORGID { get; set; }
     [JsonPropertyName("citizenId")]
     public int CTZNID { get; set; }
-    [JsonPropertyName("Token")]
+    [JsonPropertyName("token")]
     public string Token { get; set; } = string.Empty;
     [JsonPropertyName("userName")]
     public string UserName { get; set; } = string.Empty;

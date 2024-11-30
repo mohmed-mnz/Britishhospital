@@ -31,7 +31,7 @@ namespace ServiceLayer
         }
         public string Create(Dictionary<string, string> Claims, double ExpiryInMiuntes)
         {
-            AppConfiguration jwtConfig = _configuration.Get<AppConfiguration>();
+            AppConfiguration jwtConfig = _configuration.Get<AppConfiguration>()!;
 
             var TokenDescription = new SecurityTokenDescriptor()
             {
@@ -65,7 +65,7 @@ namespace ServiceLayer
                 var token = tokenHandler.CreateToken(TokenDescription);
                 return tokenHandler.WriteToken(token);
             }
-            catch (Exception ex)
+            catch (Exception )
             {
                 throw;
             }
@@ -75,7 +75,7 @@ namespace ServiceLayer
 
         public ClaimsPrincipal Validate(string Token, out bool IsExpired)
         {
-            AppConfiguration jwtConfig = _configuration.Get<AppConfiguration>();
+            AppConfiguration jwtConfig = _configuration.Get<AppConfiguration>()!;
             IsExpired = false;
             ClaimsPrincipal? ClaimsPrincipal = null;
             if (Token != string.Empty)

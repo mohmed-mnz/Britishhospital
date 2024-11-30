@@ -12,7 +12,7 @@ public class EgyptianNidValidationAttribute : ValidationAttribute
 
         var nid = value.ToString();
 
-        if (nid.Length != 14)
+        if (nid!.Length != 14)
         {
             return new ValidationResult("National ID must be exactly 14 digits.");
         }
@@ -45,7 +45,7 @@ public class EgyptianNidValidationAttribute : ValidationAttribute
             return new ValidationResult("Invalid checksum in National ID.");
         }
 
-        return ValidationResult.Success;
+        return ValidationResult.Success!;
     }
 
     private bool IsValidGovernorateCode(string code)

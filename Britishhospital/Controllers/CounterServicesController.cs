@@ -40,7 +40,7 @@ public class CounterServicesController : ControllerBase
 
     [HttpPost]
     [Route("create-counter-services")]
-    public async Task<IActionResult> CreateCounterServices(CounterServicesDto counterServicesDto)
+    public async Task<IActionResult> CreateCounterServices(CounterServicesAddDto counterServicesDto)
     {
         var result = await _counterServicesServices.CreateAsync(counterServicesDto);
         return Ok(result);

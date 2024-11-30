@@ -32,7 +32,7 @@ namespace Booking.Middlewares
                     var tokenId = claims.FindFirst("TokenId")?.Value;
                     if (tokenId != null)
                     {
-                        string backToken = _presistanceService.Get<string>($"Token_{tokenId}");
+                        string backToken = _presistanceService.Get<string>($"Token_{tokenId}")!;
 
                         if (!string.IsNullOrEmpty(backToken))
                         {

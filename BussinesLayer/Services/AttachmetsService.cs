@@ -131,7 +131,7 @@ public class AttachmetsService : IAttachmetsService
                 string base64Image = $"data:image/{extention2};base64,{base64String}";
                 return base64Image;
             }
-            catch (Exception ex)
+            catch (Exception )
             {
                 return dbPath;
             }
@@ -191,7 +191,7 @@ public class AttachmetsService : IAttachmetsService
                     return base64File;
 
                 }
-                catch (Exception ex)
+                catch (Exception )
                 {
                     return dbpath;
                 }
