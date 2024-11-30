@@ -27,6 +27,7 @@ public  static  class BussinesLayerDI
         services.AddScoped<IDisplayCounterServices, DisplayCountersServices>();
         services.AddScoped<ICounterServicesServices, CounterServicesServices>();
         services.AddScoped<IorganizationServieces,organizationServieces>();
-     
+        services.AddScoped<IBookingSettingOrgServices, BookingSettingOrgServices>();
+
     }
 }
