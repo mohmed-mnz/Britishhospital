@@ -1,6 +1,7 @@
 using APIs.Handlers;
 using Booking.Middlewares;
 using Booking.MiddleWares;
+using BritshHospital.HubConfig;
 using BussinesLayer;
 using DataLayer;
 using DbUp;
@@ -140,11 +141,6 @@ internal class Program
         builder.Services.AddHttpContextAccessor();
         builder.Services.AddHttpClient();
 
-
-
-
-
-
         var app = builder.Build();
         app.UseJwtTokenInterceptor();
 
@@ -166,6 +162,7 @@ internal class Program
         app.UseMiddleware<GlobalEaxceptionErrorHandlingMiddleware>();
 
         app.MapControllers();
+        app.MapHub<SignalRConfig>("/BritishBooking");
 
         app.Run();
     }
