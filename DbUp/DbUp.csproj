@@ -7,6 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="2024-12-06-add-an-new-table-that-has-the-relation-between-services-and-reservations.sql" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="2024-12-06-add-an-new-table-that-has-the-relation-between-services-and-reservations.sql" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="dbup-core" Version="5.0.37" />
     <PackageReference Include="dbup-sqlserver" Version="5.0.37" />
   </ItemGroup>

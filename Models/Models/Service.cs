@@ -10,5 +10,6 @@ public partial class Service
 
     public string? Prefix { get; set; }
 
+    public  virtual ICollection<ServiceReservation> ServiceReservations { get; set; } = new List<ServiceReservation>();
     public virtual ICollection<CounterServices> CounterServices { get; set; } = new List<CounterServices>();
 }

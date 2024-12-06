@@ -4,8 +4,7 @@ namespace Models.Models;
 
 public partial class BritshHosbitalContext : DbContext
 {
-    public BritshHosbitalContext(DbContextOptions<BritshHosbitalContext> options)
-        : base(options)
+    public BritshHosbitalContext(DbContextOptions<BritshHosbitalContext> options): base(options)
     {
     }
 
@@ -40,6 +39,7 @@ public partial class BritshHosbitalContext : DbContext
 
     public virtual DbSet<Service> Service { get; set; }
 
+    public virtual DbSet<ServiceReservation> ServiceReservation { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.UseCollation("Arabic_CI_AS");
@@ -245,6 +245,22 @@ public partial class BritshHosbitalContext : DbContext
         {
             entity.Property(e => e.Prefix).HasMaxLength(50);
             entity.Property(e => e.ServiceName).HasMaxLength(100);
+        });
+        modelBuilder.Entity<ServiceReservation>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.ServiceId);
+            entity.Property(e => e.ReservationId);
+            
+            entity.HasOne(d => d.Reservation).WithMany(p => p.ReservationsServices)
+                .HasForeignKey(d => d.ReservationId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_ServiceReservation_Reservations");
+
+            entity.HasOne(d => d.Service).WithMany(p => p.ServiceReservations)
+                .HasForeignKey(d => d.ServiceId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_ServiceReservation_Service");
         });
 
         OnModelCreatingPartial(modelBuilder);

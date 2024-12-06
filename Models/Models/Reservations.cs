@@ -53,4 +53,5 @@ public partial class Reservations
     public virtual Customer Customer { get; set; } = null!;
 
     public virtual Organization? Org { get; set; }
+    public virtual ICollection<ServiceReservation> ReservationsServices { get; set; } = new List<ServiceReservation>();
 }
