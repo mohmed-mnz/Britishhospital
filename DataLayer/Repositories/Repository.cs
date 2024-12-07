@@ -93,5 +93,16 @@ public class Repository<T> : IRepository<T> where T : class
         await _context.SaveChangesAsync();
     }
 
+    public async Task<List<T>> InsertRangeAsync(List<T> entities)
+    {
+        if (entities == null || !entities.Any())
+        {
+            throw new ArgumentException("The entities list cannot be null or empty.", nameof(entities));
+        }
+
+        await entity.AddRangeAsync(entities);
+        await _context.SaveChangesAsync(); 
+        return entities; 
+    }
 
 }

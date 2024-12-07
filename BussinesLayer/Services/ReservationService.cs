@@ -1,112 +1,198 @@
 ﻿using ApiContracts;
 using ApiContracts.Reservation;
 using AutoMapper;
+using BussinesLayer.HubConfig;
 using BussinesLayer.Interfaces;
 using DataLayer.Interfaces;
+using Medallion.Threading;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Identity.Client;
 using Models.Models;
 using SharedConfig;
 using System.Data;
-
 namespace BussinesLayer.Services;
 
 public class ReservationService(IReservationsRepository _repository, IMapper _mapper
-    ,IServiceReservationRepository _serviceReservation,AppConfiguration _appConfig
-    , ICustomerRepository _citizenRepository,IServiceRepository _servicesrepository) : IReservationServices
+    ,IServiceReservationRepository _serviceReservation,AppConfiguration _appConfig,IHubContext<SignalRConfig> _hubContext
+    , ICustomerRepository _citizenRepository,IServiceRepository _servicesrepository, IDistributedLockProvider _synchronizationProvider) : IReservationServices
 {
     public async Task<GResponse<ReservationsDto>> AddReservation(ReservationsAddDto reservation)
     {
-        var reservationEntity = _mapper.Map<Reservations>(reservation);
-        reservationEntity.IsCancelled = false;
-        reservationEntity.ReservationDate = DateTime.Now;
-        reservationEntity.Status = Status.Pending.ToString();
-        var citizen = await _citizenRepository.Where(x => x.Citizen!.Mobile== reservation.MobileNumber)!
-            .Include(x=>x.Citizen)
-            .FirstOrDefaultAsync();
-
-        reservationEntity.CitizenId = citizen == null ? 0 : citizen.Citizen!.CitizenId;
-        reservationEntity.CustomerId = citizen == null ? 0 : citizen.Id;
-        reservationEntity.Name =  citizen == null ? "" : citizen.Citizen!.Name;
-        reservationEntity.MobileNumber = reservation.MobileNumber;
-        reservationEntity.ReservationType= ReservationType.WalkIn.ToString();
-        reservationEntity.Orgid= reservation.OrgId;
-
-        if(reservation.ServicesId.Count > 1)
+        var lockKey = $"ReservationServices.AddReservation";
+        var @lock = await _synchronizationProvider.AcquireLockAsync(lockKey);
+        await using (@lock)
         {
-            var service =await _servicesrepository.Where(x=>x.OrgId==reservation.OrgId && x.Id == 1)!.FirstOrDefaultAsync();
-            reservationEntity.ServiceId = service.Id;
+            var reservationEntity = _mapper.Map<Reservations>(reservation);
+            reservationEntity.IsCancelled = false;
+            reservationEntity.ReservationDate = DateTime.Now;
+            reservationEntity.Status = Status.Pending.ToString();
+            var citizen = await _citizenRepository.Where(x => x.Citizen!.Mobile == reservation.MobileNumber)!
+                .Include(x => x.Citizen)
+                .FirstOrDefaultAsync();
 
-            var Queueserial = await GenerateCounterForServicesAsync(DateTime.Now, reservation.OrgId, reservationEntity.ServiceId??0);
-            reservationEntity.QueueSerial = Queueserial;
+            reservationEntity.CitizenId = citizen == null ? 0 : citizen.Citizen!.CitizenId;
+            reservationEntity.CustomerId = citizen == null ? 0 : citizen.Id;
+            reservationEntity.Name = citizen == null ? "" : citizen.Citizen!.Name;
+            reservationEntity.MobileNumber = reservation.MobileNumber;
+            reservationEntity.ReservationType = ReservationType.WalkIn.ToString();
+            reservationEntity.Orgid = reservation.OrgId;
 
-            var serial = "";
-            if (int.TryParse(service.Prefix, out int numericPrefix))
+            if (reservation.ServicesId.Count > 1)
             {
-                serial = $"{numericPrefix + Queueserial}";
+                var service = await _servicesrepository.Where(x => x.OrgId == reservation.OrgId && x.Id == 1)!.FirstOrDefaultAsync();
+                reservationEntity.ServiceId = service!.Id;
+
+                var Queueserial = await GenerateCounterForServicesAsync(DateTime.Now, reservation.OrgId, reservationEntity.ServiceId ?? 0);
+                reservationEntity.QueueSerial = Queueserial;
+
+                var serial = "";
+                if (int.TryParse(service.Prefix, out int numericPrefix))
+                {
+                    serial = $"{numericPrefix + Queueserial}";
+                }
+                else
+                {
+                    service.Prefix = string.IsNullOrEmpty(service.Prefix) ? "0" : service.Prefix;
+                    serial = $"{service.Prefix} - {(Queueserial)}";
+                }
+                reservationEntity.TicketNumber = serial;
+
+
+                var servicesreservations = new List<ServiceReservation>();
+                foreach (var item in reservation.ServicesId)
+                {
+                    servicesreservations.Add(new ServiceReservation
+                    {
+                        ServiceId = item,
+                        ReservationId = reservationEntity.Id
+                    });
+                }
+                await _serviceReservation.InsertRangeAsync(servicesreservations);
             }
             else
             {
-                service.Prefix = string.IsNullOrEmpty(service.Prefix) ? "0" : service.Prefix;
-                serial = $"{service.Prefix} - {(Queueserial)}";
+                reservationEntity.ServiceId = reservation.ServicesId[0];
+                var service = await _servicesrepository.Where(x => x.OrgId == reservation.OrgId && x.Id == reservationEntity.ServiceId)!.FirstOrDefaultAsync();
+                var Queueserial = await GenerateCounterForServicesAsync(DateTime.Now, reservation.OrgId, reservationEntity.ServiceId ?? 0);
+                reservationEntity.QueueSerial = Queueserial;
+                var serial = "";
+                if (int.TryParse(service!.Prefix, out int numericPrefix))
+                {
+                    serial = $"{numericPrefix + Queueserial}";
+                }
+                else
+                {
+                    service.Prefix = string.IsNullOrEmpty(service.Prefix) ? "0" : service.Prefix;
+                    serial = $"{service.Prefix} - {(Queueserial)}";
+                }
+                reservationEntity.TicketNumber = serial;
+                var servicesreservations = new List<ServiceReservation>
+            {
+                new ServiceReservation
+                {
+                    ServiceId = reservationEntity.ServiceId??0,
+                    ReservationId = reservationEntity.Id
+                }
+            };
+                await _serviceReservation.InsertRangeAsync(servicesreservations);
             }
-            reservationEntity.TicketNumber = serial;
-
+            await Task.WhenAll(_repository.InsertAsync(reservationEntity), _repository.Commit());
+            var dto = _mapper.Map<ReservationsDto>(reservationEntity);
+            await _hubContext.Clients.Group(reservation.OrgId.ToString()).SendAsync("AddReservation", dto);
+            return GResponse<ReservationsDto>.CreateSuccess(dto);
         }
-        else
+    }
+
+    public async Task<GResponse<ReservationsDto>> CancellReservation(long id)
+    {
+        var reservation =await _repository.Where(x => x.Id == id)!.FirstOrDefaultAsync();
+        reservation=reservation== null ? throw new Exception("Reservation not found") : reservation;
+        reservation.IsCancelled = true;
+        reservation.Status = Status.Cancelled.ToString();
+        await Task.WhenAll( _repository.Commit());
+        var dto = _mapper.Map<ReservationsDto>(reservation);
+        await _hubContext.Clients.Group(reservation.Orgid.ToString()).SendAsync("CancellReservation", dto);
+        return GResponse<ReservationsDto>.CreateSuccess(dto);
+    }
+
+    public async Task<GResponse<ReservationsDto>> GetReservation(long id)
+    {
+        var reservation = await _repository.Where(x => x.Id == id)!.FirstOrDefaultAsync();
+        reservation = reservation == null ? throw new Exception("Reservation not found") : reservation;
+        var dto = _mapper.Map<ReservationsDto>(reservation);
+        return GResponse<ReservationsDto>.CreateSuccess(dto);
+    }
+
+    public async Task<GResponse<List<ReservationsDto>>> GetReservationsByOrgId(int orgid)
+    {
+        var reservations =await _repository.Where(x=>x.Orgid==orgid)!
+            .Include(x => x.Citizen)
+            .Include(x => x.Customer)
+            .Include(x => x.Service)
+            .Include(x => x.Org)
+            .AsSplitQuery()
+            .ToListAsync();
+        var dto = _mapper.Map<List<ReservationsDto>>(reservations);
+        return GResponse<List<ReservationsDto>>.CreateSuccess(dto);
+    }
+
+    public async Task<GResponse<ReservationsDto>> UpdateReservation(ReservationsUpdateStatusDto reservation)
+    {
+        var lockKey = $"ReservationServices.AddReservation";
+        var @lock = await _synchronizationProvider.AcquireLockAsync(lockKey);
+        await using (@lock)
         {
-            reservationEntity.ServiceId = reservation.ServicesId[0];
-            var service = await _servicesrepository.Where(x => x.OrgId == reservation.OrgId && x.Id == reservationEntity.ServiceId)!.FirstOrDefaultAsync();
-            var Queueserial = await GenerateCounterForServicesAsync(DateTime.Now, reservation.OrgId, reservationEntity.ServiceId ?? 0);
-            reservationEntity.QueueSerial = Queueserial;
-            var serial = "";
-            if (int.TryParse(service!.Prefix, out int numericPrefix))
+            if (!Enum.IsDefined(typeof(Status), reservation.Status))
             {
-                serial = $"{numericPrefix + Queueserial}";
+                throw new ArgumentException("Invalid reservation status", nameof(reservation.Status));
             }
-            else
+
+            var reservationEntity = await _repository.Where(x => x.Id == reservation.Id)!.FirstOrDefaultAsync();
+            if (reservationEntity == null)
             {
-                service.Prefix = string.IsNullOrEmpty(service.Prefix) ? "0" : service.Prefix;
-                serial = $"{service.Prefix} - {(Queueserial)}";
+                throw new ApplicationException("Reservation not found");
             }
-            reservationEntity.TicketNumber = serial;
+
+            reservationEntity = _mapper.Map(reservation, reservationEntity);
+
+
+            reservationEntity = UpdateReservationStatus(reservation.Status, reservationEntity);
+
+            await _repository.Commit();
+
+            await _hubContext.Clients.Group(reservationEntity.Orgid.ToString())
+                .SendAsync("UpdateReservation", reservationEntity);
+
+            var dto = _mapper.Map<ReservationsDto>(reservationEntity);
+            return GResponse<ReservationsDto>.CreateSuccess(dto);
+        }
+    }
+
+    private Reservations UpdateReservationStatus(int status, Reservations reservationEntity)
+    {
+        switch ((Status)status)
+        {
+            case Status.Serving:
+                reservationEntity.Status = Status.Serving.ToString();
+                reservationEntity.CallAt = DateTime.Now;
+                break;
+
+            case Status.Completed:
+                reservationEntity.Status = Status.Completed.ToString();
+                reservationEntity.EndServing = DateTime.Now;
+                break;
+
+            case Status.Cancelled:
+                reservationEntity.Status = Status.Cancelled.ToString();
+                reservationEntity.IsCancelled = true;
+                break;
+
+            default:
+                throw new ArgumentOutOfRangeException(nameof(status), "Unsupported reservation status");
         }
 
-
-
-
-
-
-
-
-
-
-    }
-
-    public Task<GResponse<ReservationsDto>> DeleteReservation(long id)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<GResponse<ReservationsDto>> GetReservation(long id)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<GResponse<List<ReservationsDto>>> GetReservations()
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<GResponse<List<ReservationsDto>>> GetReservationsByOrgId(int orgId)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<GResponse<ReservationsDto>> UpdateReservation(ReservationsDto reservation)
-    {
-        throw new NotImplementedException();
+        return reservationEntity;
     }
 
 

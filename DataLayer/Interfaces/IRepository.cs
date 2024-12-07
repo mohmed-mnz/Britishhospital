@@ -16,4 +16,5 @@ public interface IRepository<T> where T : class
     Task<List<T>> GetListAsync(Expression<Func<T, bool>> predicate);
     Task<dynamic> GetEntityMaxId(Expression<Func<T, dynamic>> predicate);
     Task Commit();
+    Task<List<T>> InsertRangeAsync(List<T> entities);
 }

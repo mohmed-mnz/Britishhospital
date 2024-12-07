@@ -5,6 +5,8 @@ using BritshHospital.HubConfig;
 using BussinesLayer;
 using DataLayer;
 using DbUp;
+using Medallion.Threading;
+using Medallion.Threading.SqlServer;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.IdentityModel.Tokens;
@@ -121,7 +123,7 @@ internal class Program
         builder.Services.AddHealthChecks();
         builder.Services.AddTransient<GlobalEaxceptionErrorHandlingMiddleware>();
 
-        //builder.Services.AddSingleton<IDistributedLockProvider>(_ =>  new SqlDistributedLockProvider(appConfiguration.DbConfig.GovlcConnctionString));
+        builder.Services.AddSingleton<IDistributedLockProvider>(_ => new SqlDistributedSynchronizationProvider(appConfiguration.DbConfig.BritshHospitalConnctionString));
 
         #region AddResponseCompression
         builder.Services.AddResponseCompression(builder =>

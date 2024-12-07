@@ -7,8 +7,7 @@ public interface IReservationServices
 {
     Task<GResponse<ReservationsDto>> AddReservation(ReservationsAddDto reservation);
     Task<GResponse<ReservationsDto>> GetReservation(long id);
-    Task<GResponse<ReservationsDto>> UpdateReservation(ReservationsDto reservation);
-    Task<GResponse<ReservationsDto>> DeleteReservation(long id);
-    Task<GResponse<List<ReservationsDto>>> GetReservations();
+    Task<GResponse<ReservationsDto>> UpdateReservation(ReservationsUpdateStatusDto reservation);
+    Task<GResponse<ReservationsDto>> CancellReservation(long id);
     Task<GResponse<List<ReservationsDto>>> GetReservationsByOrgId(int orgId);
 }
