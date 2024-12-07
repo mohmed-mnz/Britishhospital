@@ -15,7 +15,7 @@ namespace BussinesLayer.Services;
 
 public class ReservationService(IReservationsRepository _repository, IMapper _mapper
     ,IServiceReservationRepository _serviceReservation,AppConfiguration _appConfig,IHubContext<SignalRConfig> _hubContext
-    , ICustomerRepository _citizenRepository,IServiceRepository _servicesrepository, IDistributedLockProvider _synchronizationProvider) : IReservationServices
+    , ICustomerRepository _citizenRepository, IServiceRepository _servicesrepository, IDistributedLockProvider _synchronizationProvider) : IReservationServices
 {
     public async Task<GResponse<ReservationsDto>> AddReservation(ReservationsAddDto reservation)
     {
@@ -195,7 +195,28 @@ public class ReservationService(IReservationsRepository _repository, IMapper _ma
         return reservationEntity;
     }
 
-
+    public Task<GResponse<ReservationsDto>> CallNextInQueue(CallNextInqueueReq callnextinqueuereq)
+    {
+        var lockKey = $"ReservationServices.CallNextInQueue";
+        var @lock = _synchronizationProvider.AcquireLock(lockKey);
+        using (@lock)
+        {
+            var reservation = _repository.Where(x => x.Orgid == callnextinqueuereq.OrgId && x.Status == Status.Pending.ToString() &&x.ServiceId==callnextinqueuereq.ServiceId)!
+                .OrderBy(x => x.QueueSerial)
+                .FirstOrDefault();
+            if (reservation == null)
+            {
+                throw new ApplicationException("No reservation in queue");
+            }
+            reservation.Status = Status.Serving.ToString();
+            reservation.CallAt = DateTime.Now;
+            reservation.CounterId = callnextinqueuereq.CounterId;
+            _repository.Commit();
+            var dto = _mapper.Map<ReservationsDto>(reservation);
+            _hubContext.Clients.Group(callnextinqueuereq.OrgId.ToString()).SendAsync("CallNextInQueue", dto);
+            return Task.FromResult(GResponse<ReservationsDto>.CreateSuccess(dto));
+        }
+    }
 
 
     public enum ReservationType
@@ -234,4 +255,5 @@ public class ReservationService(IReservationsRepository _repository, IMapper _ma
         return (int)counterOutput.Value;
     }
 
+  
 }
