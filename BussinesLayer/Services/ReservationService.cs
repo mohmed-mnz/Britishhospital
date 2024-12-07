@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using Models.Models;
 using SharedConfig;
 using System.Data;
+using System.Text;
 namespace BussinesLayer.Services;
 
 public class ReservationService(IReservationsRepository _repository, IMapper _mapper
@@ -100,9 +101,47 @@ public class ReservationService(IReservationsRepository _repository, IMapper _ma
             await Task.WhenAll(_repository.InsertAsync(reservationEntity), _repository.Commit());
             var dto = _mapper.Map<ReservationsDto>(reservationEntity);
             await _hubContext.Clients.Group(reservation.OrgId.ToString()).SendAsync("AddReservation", dto);
+            var username = _appConfig.SmsSetteings!.UserName;
+            var password = _appConfig.SmsSetteings!.Password;
+            var sender = _appConfig.SmsSetteings!.api_key;
+            var message = $"عميلنا العزيز تم حجز طلبكم بنجاح ورقم الخدمة هو {reservationEntity.TicketNumber}";
+            using (HttpClient client = new HttpClient())
+            {
+                try
+                {
+                    client.DefaultRequestHeaders.Add("api_key", _appConfig.SmsSetteings.api_key);
+
+                    string url = $"https://api.epusheg.com/api/v2/send_bulk?username={username}&password={password}&api_key={_appConfig.SmsSetteings.api_key}&message={Uri.EscapeDataString(message)}&from={sender}&to={reservation.MobileNumber}";
+
+                    var requestContent = new StringContent(string.Empty);
+
+                    HttpResponseMessage response = await client.PostAsync(url, requestContent);
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        Console.WriteLine("POST request successful!");
+                        string responseData = await response.Content.ReadAsStringAsync();
+                        Console.WriteLine("Response: " + responseData);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Error occurred while sending SMS.");
+                        string errorData = await response.Content.ReadAsStringAsync();
+                        Console.WriteLine("Error Details: " + errorData);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Exception occurred: " + ex.Message);
+                }
+            }
+
+
             return GResponse<ReservationsDto>.CreateSuccess(dto);
         }
     }
+
+
 
     public async Task<GResponse<ReservationsDto>> CancellReservation(long id)
     {

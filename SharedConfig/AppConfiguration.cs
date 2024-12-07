@@ -1,10 +1,10 @@
-﻿namespace SharedConfig
-{
-    public class AppConfiguration
-    {
-        public DbConfig? DbConfig { get; set; }
-        public JWT? Jwt { get; set; }
-        public ArchivingConfig? ArchivingConfig { get; set; }
+﻿namespace SharedConfig;
 
-    }
+public class AppConfiguration
+{
+    public DbConfig? DbConfig { get; set; }
+    public JWT? Jwt { get; set; }
+    public ArchivingConfig? ArchivingConfig { get; set; }
+    public SmsSetteings? SmsSetteings { get; set; }
+
 }
