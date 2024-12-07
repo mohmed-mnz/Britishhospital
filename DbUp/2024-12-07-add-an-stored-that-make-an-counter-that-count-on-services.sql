@@ -14,7 +14,7 @@ begin
         BEGIN TRANSACTION;
         SELECT @Counter = COUNT(*)
         FROM Reservations WITH (ROWLOCK, UPDLOCK)
-        WHERE CAST(CalendarData AS DATE) = @ReservationDate
+        WHERE CAST(ReservationDate AS DATE) = @ReservationDate
           AND OrgId = @OrgId
           AND ServiceId = @QGID;
         SET @Counter = @Counter + 1;
@@ -38,7 +38,7 @@ BEGIN
 
     SELECT @Counter = COUNT(*)
     FROM Reservations WITH (ROWLOCK, UPDLOCK)
-    WHERE CAST(CalendarData AS DATE) = @ReservationDate
+    WHERE CAST(ReservationDate AS DATE) = @ReservationDate
       AND OrgId = @OrgId
       AND ServiceId = @QGID;
 
