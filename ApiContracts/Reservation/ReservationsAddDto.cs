@@ -8,5 +8,8 @@ public class ReservationsAddDto
     public string? MobileNumber { get; set; }
 
     [JsonPropertyName("servicesId")]
-    public List<double> ServicesId { get; set; } = new List<double>();
+    public List<int> ServicesId { get; set; } = new List<int>();
+
+    [JsonPropertyName("orgId")]
+    public int OrgId { get; set; }
 }

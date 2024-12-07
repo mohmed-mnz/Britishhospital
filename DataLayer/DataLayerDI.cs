@@ -27,6 +27,7 @@ public static class DataLayerDi
         service.AddScoped<IOrganizationRepository, OrganizationRepository>();
         service.AddScoped<IReservationsRepository, ReservationsRepository>();
         service.AddScoped<IServiceRepository, ServiceRepository>();
+        service.AddScoped<IServiceReservationRepository, ServiceReservationRepository>();
 
     }
 }

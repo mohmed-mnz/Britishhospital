@@ -6,25 +6,19 @@ public partial class Reservations
 {
     public long Id { get; set; }
 
-    public string Nid { get; set; } = null!;
+    public string? Nid { get; set; } 
 
     public DateTime ReservationDate { get; set; }
-
-    public DateTime CreatedOn { get; set; }
 
     public string? Name { get; set; }
 
     public double? QueueSerial { get; set; }
 
-    public string? BookingDetails { get; set; }
-
-    public bool? IsTransferd { get; set; }
-
     public bool? IsCancelled { get; set; }
 
-    public int CitizenId { get; set; }
+    public int? CitizenId { get; set; }
 
-    public int CustomerId { get; set; }
+    public int? CustomerId { get; set; }
 
     public string? Status { get; set; }
 
@@ -42,15 +36,15 @@ public partial class Reservations
 
     public string? ReservationType { get; set; }
 
-    public int? OrgSerial { get; set; }
-
-    public DateTime? TransferedAt { get; set; }
-
     public int? Orgid { get; set; }
+    public int? ServiceId { get; set; }
 
     public virtual Citizen Citizen { get; set; } = null!;
 
     public virtual Customer Customer { get; set; } = null!;
+
+
+    public virtual Service? Service { get; set; }
 
     public virtual Organization? Org { get; set; }
     public virtual ICollection<ServiceReservation> ReservationsServices { get; set; } = new List<ServiceReservation>();

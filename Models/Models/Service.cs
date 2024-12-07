@@ -9,7 +9,10 @@ public partial class Service
     public string? ServiceName { get; set; }
 
     public string? Prefix { get; set; }
+    public int? OrgId { get; set; }
 
     public  virtual ICollection<ServiceReservation> ServiceReservations { get; set; } = new List<ServiceReservation>();
     public virtual ICollection<CounterServices> CounterServices { get; set; } = new List<CounterServices>();
+    public virtual ICollection<Reservations> Reservations { get; set; } = new List<Reservations>();
+    public virtual Organization? Org { get; set; }
 }

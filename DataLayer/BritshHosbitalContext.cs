@@ -207,12 +207,9 @@ public partial class BritshHosbitalContext : DbContext
 
             entity.Property(e => e.CallAt).HasColumnType("datetime");
             entity.Property(e => e.CounterId).HasColumnName("counterId");
-            entity.Property(e => e.CreatedOn).HasColumnType("datetime");
             entity.Property(e => e.EndServing).HasColumnType("datetime");
             entity.Property(e => e.IsCancelled).HasColumnName("isCancelled");
-            entity.Property(e => e.IsTransferd)
-                .HasDefaultValueSql("((0))")
-                .HasColumnName("isTransferd");
+  
             entity.Property(e => e.MobileNumber).HasMaxLength(15);
             entity.Property(e => e.Name).HasMaxLength(150);
             entity.Property(e => e.Nid)
@@ -224,7 +221,6 @@ public partial class BritshHosbitalContext : DbContext
             entity.Property(e => e.ReservationType).HasMaxLength(50);
             entity.Property(e => e.Status).HasMaxLength(50);
             entity.Property(e => e.TicketNumber).HasMaxLength(100);
-            entity.Property(e => e.TransferedAt).HasColumnType("datetime");
 
             entity.HasOne(d => d.Citizen).WithMany(p => p.Reservations)
                 .HasForeignKey(d => d.CitizenId)
@@ -239,6 +235,12 @@ public partial class BritshHosbitalContext : DbContext
                 .HasForeignKey(d => d.Orgid)
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("FK_Reservations_Organization");
+
+            entity.HasOne(d => d.Service).WithMany(p => p.Reservations)
+                .HasForeignKey(d => d.ServiceId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_Reservations_Service")
+                .IsRequired(false);
         });
 
         modelBuilder.Entity<Service>(entity =>
