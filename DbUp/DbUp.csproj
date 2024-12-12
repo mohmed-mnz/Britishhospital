@@ -16,6 +16,7 @@
     <EmbeddedResource Include="2024-12-06-add-an-new-table-that-has-the-relation-between-services-and-reservations.sql" />
     <EmbeddedResource Include="2024-12-07-add-an-stored-that-make-an-counter-that-count-on-services.sql" />
     <EmbeddedResource Include="2024-12-12-add-orgid-in-Counter.sql" />
+    <EmbeddedResource Include="2024-12-12-Add-the-Services-data-in-the-services-table-seed.sql" />
   </ItemGroup>
 
   <ItemGroup>

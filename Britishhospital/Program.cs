@@ -121,7 +121,7 @@ internal class Program
         builder.Services.RegisterBussinesLayerDi();
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddHealthChecks();
-        builder.Services.AddTransient<GlobalEaxceptionErrorHandlingMiddleware>();
+        builder.Services.AddTransient<GlobalExceptionHandlingMiddleware>();
 
         builder.Services.AddSingleton<IDistributedLockProvider>(_ => new SqlDistributedSynchronizationProvider(appConfiguration.DbConfig.BritshHospitalConnctionString));
 
@@ -157,11 +157,12 @@ internal class Program
 
         app.UseResponseCompression();
 
+        app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
+
         app.UseAuthentication();
 
         app.UseAuthorization();
 
-        app.UseMiddleware<GlobalEaxceptionErrorHandlingMiddleware>();
 
         app.MapControllers();
         app.MapHub<SignalRConfig>("/BritishBooking");

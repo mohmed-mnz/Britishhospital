@@ -28,11 +28,9 @@ public partial class Reservations
 
     public string? TicketNumber { get; set; }
 
-    public double? ReqId { get; set; }
-
     public DateTime? CallAt { get; set; }
 
-    public DateTime EndServing { get; set; }
+    public DateTime? EndServing { get; set; }
 
     public string? ReservationType { get; set; }
 

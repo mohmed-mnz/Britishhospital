@@ -32,13 +32,16 @@ public class ReservationService(IReservationsRepository _repository, IMapper _ma
                 .Include(x => x.Citizen)
                 .FirstOrDefaultAsync();
 
-            reservationEntity.CitizenId = citizen == null ? 0 : citizen.Citizen!.CitizenId;
-            reservationEntity.CustomerId = citizen == null ? 0 : citizen.Id;
+            reservationEntity.CitizenId = citizen == null ? null : citizen.Citizen!.CitizenId;
+            reservationEntity.CustomerId = citizen == null ? null : citizen.Id;
             reservationEntity.Name = citizen == null ? "" : citizen.Citizen!.Name;
             reservationEntity.MobileNumber = reservation.MobileNumber;
             reservationEntity.ReservationType = ReservationType.WalkIn.ToString();
             reservationEntity.Orgid = reservation.OrgId;
+            reservationEntity.EndServing = null;
 
+          
+            await Task.WhenAll(_repository.InsertAsync(reservationEntity), _repository.Commit());
             if (reservation.ServicesId.Count > 1)
             {
                 var service = await _servicesrepository.Where(x => x.OrgId == reservation.OrgId && x.Id == 1)!.FirstOrDefaultAsync();
@@ -98,43 +101,17 @@ public class ReservationService(IReservationsRepository _repository, IMapper _ma
             };
                 await _serviceReservation.InsertRangeAsync(servicesreservations);
             }
-            await Task.WhenAll(_repository.InsertAsync(reservationEntity), _repository.Commit());
             var dto = _mapper.Map<ReservationsDto>(reservationEntity);
             await _hubContext.Clients.Group(reservation.OrgId.ToString()).SendAsync("AddReservation", dto);
             var username = _appConfig.SmsSetteings!.UserName;
             var password = _appConfig.SmsSetteings!.Password;
             var sender = _appConfig.SmsSetteings!.api_key;
             var message = $"عميلنا العزيز تم حجز طلبكم بنجاح ورقم الخدمة هو {reservationEntity.TicketNumber}";
-            using (HttpClient client = new HttpClient())
-            {
-                try
-                {
-                    client.DefaultRequestHeaders.Add("api_key", _appConfig.SmsSetteings.api_key);
-
-                    string url = $"https://api.epusheg.com/api/v2/send_bulk?username={username}&password={password}&api_key={_appConfig.SmsSetteings.api_key}&message={Uri.EscapeDataString(message)}&from={sender}&to={reservation.MobileNumber}";
-
-                    var requestContent = new StringContent(string.Empty);
-
-                    HttpResponseMessage response = await client.PostAsync(url, requestContent);
-
-                    if (response.IsSuccessStatusCode)
-                    {
-                        Console.WriteLine("POST request successful!");
-                        string responseData = await response.Content.ReadAsStringAsync();
-                        Console.WriteLine("Response: " + responseData);
-                    }
-                    else
-                    {
-                        Console.WriteLine("Error occurred while sending SMS.");
-                        string errorData = await response.Content.ReadAsStringAsync();
-                        Console.WriteLine("Error Details: " + errorData);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine("Exception occurred: " + ex.Message);
-                }
-            }
+            var client = new HttpClient();
+            var request = new HttpRequestMessage(HttpMethod.Get, $"https://api.epusheg.com/api/v2/send_bulk?username={username}&password={password}&api_key={sender}&message={message}&from=BritishHosp&to={reservation.MobileNumber}");
+            var response = await client.SendAsync(request);
+            response.EnsureSuccessStatusCode();
+            Console.WriteLine(await response.Content.ReadAsStringAsync());
 
 
             return GResponse<ReservationsDto>.CreateSuccess(dto);
