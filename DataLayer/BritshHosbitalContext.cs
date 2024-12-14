@@ -157,7 +157,7 @@ public partial class BritshHosbitalContext : DbContext
         {
             entity.ToTable("employee");
 
-            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.Id);
             entity.Property(e => e.Citizenid).HasColumnName("citizenid");
             entity.Property(e => e.Orgid).HasColumnName("orgid");
             entity.Property(e => e.Password).HasMaxLength(500);

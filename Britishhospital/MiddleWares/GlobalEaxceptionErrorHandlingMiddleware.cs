@@ -56,7 +56,7 @@ public class GlobalExceptionHandlingMiddleware : IMiddleware
             await HandleErrorAsync(context, HttpStatusCode.Conflict, "A concurrency conflict occurred. Please try again.");
         }
         catch (Exception ex)
-        {
+       {
             _logger.LogError(ex, "An unexpected error occurred: {Message}", ex.Message);
 
             var (statusCode, errorMessage) = DetermineSpecificErrors(ex);

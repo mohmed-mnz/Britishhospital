@@ -71,15 +71,15 @@ public class EmployeeServices(IEmployeeRepository _repository, IMapper _mapper, 
             Guid tokenId = Guid.NewGuid();
 
             Dictionary<string, string> claims = new()
-        {
+            {
                 { "EmpId", user.Id.ToString() },
                 { "CitizenId", user.Citizenid.ToString() ??""},
                 {"GroupUser" , string.Join(", ", user.GroupUser.Select(x => x.Group.GroupName)) }
-        };
+            };
             var token = _tokenService.Create(claims, _appConfig.Jwt!.ExpirytimeinMinutes);
             _presistanceService.Set($"Token_{tokenId}", token, TimeSpan.FromMinutes(_appConfig.Jwt.ExpirytimeinMinutes * 24 * 60));
 
-            Dictionary<string, string> tokenIdClaims = new()
+                    Dictionary<string, string> tokenIdClaims = new()
                     {
                         { "TokenId", tokenId.ToString() }
                     };
