@@ -30,20 +30,29 @@ public class EmployeeServices(IEmployeeRepository _repository, IMapper _mapper, 
         if (employee == null)
             throw new ApplicationException("emp not found");
         var employeeDto = _mapper.Map<EmployeeDto>(employee);
+        employeeDto.Roles= employee.GroupUser.Select(x => x.Group.GroupName).ToList()!;
         return GResponse<EmployeeDto>.CreateSuccess(employeeDto);
     }
 
     public async Task<GResponse<IEnumerable<EmployeeDto>>> GetEmployeeByOrgIdListAsync(int orgId)
     {
-        var employees = await _repository.Where(x => x.Orgid == orgId)!.Include(x => x.Org).Include(z => z.Citizen).AsSplitQuery().ToListAsync();
+        var employees = await _repository.Where(x => x.Orgid == orgId)!.Include(x => x.Org).Include(z => z.Citizen).Include(g=>g.GroupUser).ThenInclude(gg => gg.Group).AsSplitQuery().ToListAsync();
         var employeeDtos = _mapper.Map<IEnumerable<EmployeeDto>>(employees);
+        foreach (var emp in employeeDtos)
+        {
+            emp.Roles = employees.Where(x => x.Id == emp.Id).SelectMany(x => x.GroupUser).Select(x => x.Group.GroupName).ToList()!;
+        }
         return GResponse<IEnumerable<EmployeeDto>>.CreateSuccess(employeeDtos);
     }
 
     public async Task<GResponse<IEnumerable<EmployeeDto>>> GetEmployeeListAsync()
     {
-        var employees = await _repository.AsQueryable()!.Include(x => x.Org).Include(z => z.Citizen).AsSplitQuery().ToListAsync();
+        var employees = await _repository.AsQueryable()!.Include(x => x.Org).Include(z => z.Citizen).Include(g => g.GroupUser).ThenInclude(gg => gg.Group).AsSplitQuery().ToListAsync();
         var employeeDtos = _mapper.Map<IEnumerable<EmployeeDto>>(employees);
+        foreach (var emp in employeeDtos)
+        {
+            emp.Roles = employees.Where(x => x.Id == emp.Id).SelectMany(x => x.GroupUser).Select(x => x.Group.GroupName).ToList()!;
+        }
         return GResponse<IEnumerable<EmployeeDto>>.CreateSuccess(employeeDtos);
     }
 

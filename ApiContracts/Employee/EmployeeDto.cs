@@ -17,7 +17,11 @@ public class EmployeeDto
     public string Phone { get; set; } = null!;
     [JsonPropertyName("citizenName")]
     public string CitizenName { get; set; } = null!;
-    public List<GroupUser> groupUsers { get; set; }
+    [JsonPropertyName("roles")]
+    public List<string> Roles { get; set; } = new List<string>();
 
-
+    [JsonPropertyName("citizenId")]
+    public int CitizenId { get; set; }
+    [JsonPropertyName("nid")]
+    public string? Nid { get;set; }
 }
