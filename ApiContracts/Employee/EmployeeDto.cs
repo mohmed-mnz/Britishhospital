@@ -24,4 +24,8 @@ public class EmployeeDto
     public int CitizenId { get; set; }
     [JsonPropertyName("nid")]
     public string? Nid { get;set; }
+
+    [JsonPropertyName("isActicve")]
+    public bool? isActicve { get; set; }
+
 }
