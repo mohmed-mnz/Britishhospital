@@ -271,5 +271,21 @@ public class ReservationService(IReservationsRepository _repository, IMapper _ma
         return (int)counterOutput.Value;
     }
 
-  
+    public async Task<GResponse<ReservationStatisticsDto>> reservationstatisticsbasedonorgid(FilterReservationStatistics filter)
+    {
+        var reservation =await _repository.Where(x => x.Orgid == filter.OrgId && x.ReservationDate.Date >= filter.FromDate.Date && x.ReservationDate.Date <= filter.ToDate.Date)!
+            .Include(x => x.Service)
+            .Include(x => x.Org)
+            .AsSplitQuery()
+            .ToListAsync();
+        var dto = new ReservationStatisticsDto
+        {
+            totalCancelledReservations = reservation.Count(x => x.Status == Status.Cancelled.ToString()),
+            totalCompletedReservations = reservation.Count(x => x.Status == Status.Completed.ToString()),
+            totalPendingReservations = reservation.Count(x => x.Status == Status.Pending.ToString()),
+            totalServingReservations = reservation.Count(x => x.Status == Status.Serving.ToString()),
+            TotalReservations = reservation.Count()
+        };
+        return GResponse<ReservationStatisticsDto>.CreateSuccess(dto);
+    }
 }

@@ -57,5 +57,12 @@ public class ReservationsController : ControllerBase
         var result = await _Services.CallNextInQueue(callnextinqueuereq);
         return Ok(result);
     }
-    
+    [HttpPost]
+    [Route("reservation-statistics-based-on-orgid")]
+    public async Task<IActionResult> ReservationStatisticsBasedOnOrgId([FromBody] FilterReservationStatistics filter)
+    {
+        var result = await _Services.reservationstatisticsbasedonorgid(filter);
+        return Ok(result);
+    }
+
 }
