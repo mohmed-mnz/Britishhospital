@@ -87,6 +87,7 @@ public partial class BritshHosbitalContext : DbContext
 
         modelBuilder.Entity<Counters>(entity =>
         {
+            entity.ToTable("Counters");
             entity.HasKey(e => e.CounterId);
 
             entity.Property(e => e.CounterName).HasMaxLength(50);

@@ -1,12 +1,13 @@
 ﻿using ApiContracts.Advertisment;
 using BussinesLayer.Interface;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BritshHospital.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-//[Authorize]
+[Authorize]
 public class AdvertismentController(IAdvertismentServices _services) : ControllerBase
 {
     [HttpGet("get-all-Advertisments")]
