@@ -12,12 +12,27 @@ public class BookingSettingOrgServices(IBookingSettingOrgRepository bookingSetti
 {
     public async Task<GResponse<BookingSettingOrgDto>> AddBookingSettingOrgAsync(BookingSettingOrgAddDto bookingSettingOrgAddDto)
     {
-        var bookingSettingOrg = mapper.Map<BookingSettingOrg>(bookingSettingOrgAddDto);
-        await bookingSettingOrgRepository.InsertAsync(bookingSettingOrg);
-        await bookingSettingOrgRepository.Commit();
-        bookingSettingOrg = await bookingSettingOrgRepository.Where(x => x.Id == bookingSettingOrg.Id)!.Include(o => o.Org).FirstOrDefaultAsync();
-        var bookingSettingOrgDto = mapper.Map<BookingSettingOrgDto>(bookingSettingOrg);
-        return GResponse<BookingSettingOrgDto>.CreateSuccess(bookingSettingOrgDto);
+        var orgsettieng = await bookingSettingOrgRepository.Where(x => x.OrgId == bookingSettingOrgAddDto.OrgId)!.FirstOrDefaultAsync();
+        if (orgsettieng != null)
+        {
+            orgsettieng = mapper.Map(bookingSettingOrgAddDto, orgsettieng);
+            await bookingSettingOrgRepository.Commit();
+            orgsettieng = await bookingSettingOrgRepository.Where(x => x.Id == orgsettieng.Id)!.Include(o => o.Org).FirstOrDefaultAsync();
+            var bookingSettingOrgDto = mapper.Map<BookingSettingOrgDto>(orgsettieng);
+            return GResponse<BookingSettingOrgDto>.CreateSuccess(bookingSettingOrgDto);
+        }
+        else
+        {
+            var bookingSettingOrg = mapper.Map<BookingSettingOrg>(bookingSettingOrgAddDto);
+            await bookingSettingOrgRepository.InsertAsync(bookingSettingOrg);
+            await bookingSettingOrgRepository.Commit();
+            bookingSettingOrg = await bookingSettingOrgRepository.Where(x => x.Id == bookingSettingOrg.Id)!.Include(o => o.Org).FirstOrDefaultAsync();
+            var bookingSettingOrgDto = mapper.Map<BookingSettingOrgDto>(bookingSettingOrg);
+            return GResponse<BookingSettingOrgDto>.CreateSuccess(bookingSettingOrgDto);
+        }
+
+
+      
     }
 
     public async Task<GResponse<bool>> DeleteBookingSettingOrgAsync(int id)
