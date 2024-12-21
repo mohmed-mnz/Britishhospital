@@ -11,5 +11,9 @@ public interface ICountersServices
     Task<GResponse<CountersDto>> UpdateCounter(CountersUpdateDto model);
     Task<GResponse<bool>> DeleteCounter(int id);
     Task<GResponse<IEnumerable<CountersDto>>> GetAllBasedonorgid(int orgid);
+    Task<GResponse<CountersDto>> assignemployeetocounter(CountersUpdateToAssignEmployeetoCounterDto countersUpdateTo);
+    Task<GResponse<bool>> DeleteEmployeeFromCounter(int counterid);
+    Task<GResponse<bool>> setthecounternotactive(int counterid);
+
 
 }
