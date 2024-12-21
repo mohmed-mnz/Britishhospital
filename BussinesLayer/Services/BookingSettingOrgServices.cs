@@ -5,6 +5,8 @@ using BussinesLayer.Interfaces;
 using DataLayer.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Models.Models;
+using System;
+using System.Globalization;
 
 namespace BussinesLayer.Services;
 
@@ -12,28 +14,52 @@ public class BookingSettingOrgServices(IBookingSettingOrgRepository bookingSetti
 {
     public async Task<GResponse<BookingSettingOrgDto>> AddBookingSettingOrgAsync(BookingSettingOrgAddDto bookingSettingOrgAddDto)
     {
-        var orgsettieng = await bookingSettingOrgRepository.Where(x => x.OrgId == bookingSettingOrgAddDto.OrgId)!.FirstOrDefaultAsync();
-        if (orgsettieng != null)
+        var orgSetting = await bookingSettingOrgRepository
+            .Where(x => x.OrgId == bookingSettingOrgAddDto.OrgId)!
+            .FirstOrDefaultAsync();
+
+        if (orgSetting != null)
         {
-            orgsettieng = mapper.Map(bookingSettingOrgAddDto, orgsettieng);
+            orgSetting = mapper.Map(bookingSettingOrgAddDto, orgSetting);
             await bookingSettingOrgRepository.Commit();
-            orgsettieng = await bookingSettingOrgRepository.Where(x => x.Id == orgsettieng.Id)!.Include(o => o.Org).FirstOrDefaultAsync();
-            var bookingSettingOrgDto = mapper.Map<BookingSettingOrgDto>(orgsettieng);
+            orgSetting = await bookingSettingOrgRepository
+                .Where(x => x.Id == orgSetting.Id)!
+                .Include(o => o.Org)
+                .FirstOrDefaultAsync();
+            var bookingSettingOrgDto = mapper.Map<BookingSettingOrgDto>(orgSetting);
             return GResponse<BookingSettingOrgDto>.CreateSuccess(bookingSettingOrgDto);
         }
         else
         {
-            var bookingSettingOrg = mapper.Map<BookingSettingOrg>(bookingSettingOrgAddDto);
+            var bookingSettingOrg = new BookingSettingOrg
+            {
+                OrgId = bookingSettingOrgAddDto.OrgId ?? 0,
+                UserlimitReservation = bookingSettingOrgAddDto.UserlimitReservation ?? 0,
+                StartWorkingHour = !string.IsNullOrWhiteSpace(bookingSettingOrgAddDto.StartWorkingHour)
+                    ? DateTime.ParseExact(bookingSettingOrgAddDto.StartWorkingHour, "hh:mmtt", CultureInfo.InvariantCulture).TimeOfDay
+                    : null,
+                EndWorkingHour = !string.IsNullOrWhiteSpace(bookingSettingOrgAddDto.EndWorkingHour)
+                    ? DateTime.ParseExact(bookingSettingOrgAddDto.EndWorkingHour, "hh:mmtt", CultureInfo.InvariantCulture).TimeOfDay
+                    : null,
+                KioskClosingTime = !string.IsNullOrWhiteSpace(bookingSettingOrgAddDto.KioskClosingTime)
+                    ? DateTime.ParseExact(bookingSettingOrgAddDto.KioskClosingTime, "hh:mmtt", CultureInfo.InvariantCulture).TimeOfDay
+                    : null
+            };
+
             await bookingSettingOrgRepository.InsertAsync(bookingSettingOrg);
             await bookingSettingOrgRepository.Commit();
-            bookingSettingOrg = await bookingSettingOrgRepository.Where(x => x.Id == bookingSettingOrg.Id)!.Include(o => o.Org).FirstOrDefaultAsync();
+
+            bookingSettingOrg = await bookingSettingOrgRepository
+                .Where(x => x.Id == bookingSettingOrg.Id)!
+                .Include(o => o.Org)
+                .FirstOrDefaultAsync();
+
             var bookingSettingOrgDto = mapper.Map<BookingSettingOrgDto>(bookingSettingOrg);
             return GResponse<BookingSettingOrgDto>.CreateSuccess(bookingSettingOrgDto);
         }
-
-
-      
     }
+
+
 
     public async Task<GResponse<bool>> DeleteBookingSettingOrgAsync(int id)
     {

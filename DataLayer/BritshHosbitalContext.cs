@@ -52,9 +52,10 @@ public partial class BritshHosbitalContext : DbContext
 
         modelBuilder.Entity<BookingSettingOrg>(entity =>
         {
-            entity.Property(e => e.EndWorkingHour).HasPrecision(0);
-            entity.Property(e => e.KioskClosingTime).HasPrecision(0);
-            entity.Property(e => e.StartWorkingHour).HasPrecision(0);
+            entity.HasKey(e=>e.Id);
+            entity.Property(e => e.EndWorkingHour);
+            entity.Property(e => e.KioskClosingTime);
+            entity.Property(e => e.StartWorkingHour);
 
             entity.HasOne(d => d.Org).WithMany(p => p.BookingSettingOrg)
                 .HasForeignKey(d => d.OrgId)
