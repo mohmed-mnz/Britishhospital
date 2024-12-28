@@ -35,6 +35,7 @@ public partial class Reservations
     public string? ReservationType { get; set; }
 
     public int? Orgid { get; set; }
+
     public int? ServiceId { get; set; }
 
     public virtual Citizen Citizen { get; set; } = null!;

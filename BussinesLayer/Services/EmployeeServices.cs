@@ -4,13 +4,14 @@ using AutoMapper;
 using BussinesLayer.Interfaces;
 using BussinesLayer.Interfaces.Token;
 using DataLayer.Interfaces;
+using DataLayer.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Models.Models;
 using SharedConfig;
 
 namespace BussinesLayer.Services;
 
-public class EmployeeServices(IEmployeeRepository _repository, IMapper _mapper, ICitizenRepository citizenRepository, ITokenService _tokenService, IPresistanceService _presistanceService, AppConfiguration _appConfig) : IEmployeeServices
+public class EmployeeServices(IEmployeeRepository _repository, IMapper _mapper, ICitizenRepository citizenRepository, ITokenService _tokenService, IPresistanceService _presistanceService, AppConfiguration _appConfig,ICounterRepository _counterRepository) : IEmployeeServices
 {
     public async Task<GResponse<bool>> DeleteEmployeeAsync(int id)
     {
@@ -84,6 +85,10 @@ public class EmployeeServices(IEmployeeRepository _repository, IMapper _mapper, 
                         { "TokenId", tokenId.ToString() }
                     };
 
+
+            var counterid = await _counterRepository.Where(x => x.empid == user.Id)!.FirstOrDefaultAsync();
+
+
             var emp = new EmployeeLoginDto();
             emp.CTZNID = user.Citizenid ?? 0;
             emp.EMPID = user.Id;
@@ -94,6 +99,13 @@ public class EmployeeServices(IEmployeeRepository _repository, IMapper _mapper, 
             emp.OrgName = user.Org!.OrgName;
             emp.ExpirytimeinMinutes = _appConfig.Jwt.ExpirytimeinMinutes;
             emp.Roles = user.GroupUser.Select(x => x.Group!.GroupName).ToList()!;
+            if(counterid != null)
+            {
+                emp.CounterId = counterid!.CounterId;
+                emp.counterName = counterid.CounterName!;
+            }
+
+
             return GResponse<EmployeeLoginDto>.CreateSuccess(emp);
         }
         else

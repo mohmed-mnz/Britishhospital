@@ -15,11 +15,11 @@ public class ReservationsController : ControllerBase
     {
         _Services = services;
     }
-    [HttpGet]
-    [Route("get-reservations-based-on-orgid/{orgId}")]
-    public async Task<IActionResult> GetReservationsByOrgId(int orgId)
+    [HttpPost]
+    [Route("get-reservations-based-on-orgid-and-counterid")]
+    public async Task<IActionResult> GetReservationsByOrgId(ReservationFilterDto dto)
     {
-        var result = await _Services.GetReservationsByOrgId(orgId);
+        var result = await _Services.GetReservationsByOrgId(dto.OrgId,dto.CounterId);
         return Ok(result);
     }
     [HttpPost]

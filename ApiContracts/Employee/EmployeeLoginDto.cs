@@ -19,6 +19,9 @@ public class EmployeeLoginDto
     public string NID { get; set; } = string.Empty;
     [JsonPropertyName("counterId")]
     public int? CounterId { get; set; }
+    [JsonPropertyName("counterName")]
+
+    public string counterName { get; set; } = string.Empty;
 
 
     [JsonPropertyName("orgName")]

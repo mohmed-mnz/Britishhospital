@@ -16,7 +16,7 @@ namespace BussinesLayer.Services;
 
 public class ReservationService(IReservationsRepository _repository, IMapper _mapper
     ,IServiceReservationRepository _serviceReservation,AppConfiguration _appConfig,IHubContext<SignalRConfig> _hubContext
-    , ICustomerRepository _citizenRepository, IServiceRepository _servicesrepository, IDistributedLockProvider _synchronizationProvider) : IReservationServices
+    , ICustomerRepository _citizenRepository, IServiceRepository _servicesrepository, IDistributedLockProvider _synchronizationProvider,ICounterServicesRepository _counterServicesRepository) : IReservationServices
 {
     public async Task<GResponse<ReservationsDto>> AddReservation(ReservationsAddDto reservation)
     {
@@ -140,18 +140,59 @@ public class ReservationService(IReservationsRepository _repository, IMapper _ma
         return GResponse<ReservationsDto>.CreateSuccess(dto);
     }
 
-    public async Task<GResponse<List<ReservationsDto>>> GetReservationsByOrgId(int orgid)
+    public async Task<GResponse<List<ReservationsCounterDetailsDto>>> GetReservationsByOrgId(int orgid, int counterid)
     {
-        var reservations =await _repository.Where(x=>x.Orgid==orgid)!
+        // Fetch all service IDs associated with the given counter ID
+        var servicesId = await _counterServicesRepository
+            .Where(x => x.CounterId == counterid)
+            .Select(x => x.ServiceId)
+            .ToListAsync();
+
+        // Fetch all reservations that match the organization ID and service IDs
+        var reservations = await _repository
+            .Where(x => x.Orgid == orgid && servicesId.Contains(x.ServiceId))!
+            .Include(x => x.Service)
+                .ThenInclude(s => s.CounterServices)
+                    .ThenInclude(cs => cs.Counter)
             .Include(x => x.Citizen)
             .Include(x => x.Customer)
-            .Include(x => x.Service)
             .Include(x => x.Org)
             .AsSplitQuery()
             .ToListAsync();
-        var dto = _mapper.Map<List<ReservationsDto>>(reservations);
-        return GResponse<List<ReservationsDto>>.CreateSuccess(dto);
+
+        var groupedReservations = reservations
+            .GroupBy(r => r.Service!.CounterServices
+                .Select(cs => cs.Counter!.CounterName)
+                .FirstOrDefault())
+            .Select(group => new ReservationsCounterDetailsDto
+            {
+                CounterName = group.Key,
+                ReservationData = group.Select(r => new ReservationsDto
+                {
+                    Id = r.Id,
+                    Nid = r.Nid,
+                    ReservationDate = r.ReservationDate,
+                    CreatedOn = DateTime.Now,
+                    Name = r.Citizen?.Name,
+                    QueueSerial = r.QueueSerial,
+                    CitizenId = r.CitizenId ?? 0,
+                    CustomerId = r.CustomerId ?? 0,
+                    Status = r.Status,
+                    CounterId = r.Service?.CounterServices.FirstOrDefault()?.CounterId,
+                    MobileNumber = r.MobileNumber,
+                    TicketNumber = r.TicketNumber,
+                    ReqId = r.ServiceId,
+                    CallAt = r.CallAt,
+                    ReservationType = r.ReservationType,
+                    Orgid = r.Orgid,
+                    OrgName = r.Org?.OrgName!
+                }).ToList()
+            })
+            .ToList();
+
+        return GResponse<List<ReservationsCounterDetailsDto>>.CreateSuccess(groupedReservations);
     }
+
 
     public async Task<GResponse<ReservationsDto>> UpdateReservation(ReservationsUpdateStatusDto reservation)
     {
