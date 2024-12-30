@@ -191,7 +191,8 @@ public class ReservationService(IReservationsRepository _repository, IMapper _ma
                     ReservationType = r.ReservationType,
                     Orgid = r.Orgid,
                     OrgName = r.Org?.OrgName!,
-                    Services = r.ReservationsServices!.Select(rs => rs.Service!.ServiceName).ToList()!
+                    Services = r.ReservationsServices!.Select(rs => rs.Service!.ServiceName).ToList()!,
+                    EndServing = null
                 }).ToList()
             })
             .ToList();
@@ -260,7 +261,7 @@ public class ReservationService(IReservationsRepository _repository, IMapper _ma
 
     public Task<GResponse<ReservationsDto>> CallNextInQueue(CallNextInqueueReq callnextinqueuereq)
     {
-        var lockKey = $"ReservationServices.CallNextInQueue";
+        var lockKey = $"ReservationServices.CallNextInQueue.Orgid : {callnextinqueuereq.OrgId}";
         var @lock = _synchronizationProvider.AcquireLock(lockKey);
         using (@lock)
         {
