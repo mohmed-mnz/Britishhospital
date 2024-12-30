@@ -1,11 +1,13 @@
 ﻿using ApiContracts.Group;
 using BussinesLayer.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BritshHospital.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
+[Authorize]
 public class GroupController(IGroupServices _services) : ControllerBase
 {
     [HttpGet("get-all-groups")]

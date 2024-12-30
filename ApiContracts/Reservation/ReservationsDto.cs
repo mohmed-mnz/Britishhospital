@@ -35,7 +35,7 @@ public class ReservationsDto
     [JsonPropertyName("callAt")]
     public DateTime? CallAt { get; set; }
     [JsonPropertyName("endServing")]
-    public DateTime EndServing { get; set; }
+    public DateTime? EndServing { get; set; }
     [JsonPropertyName("reservationType")]
     public string? ReservationType { get; set; }
     [JsonPropertyName("orgSerial")]
@@ -46,5 +46,7 @@ public class ReservationsDto
     public int? Orgid { get; set; }
     [JsonPropertyName("orgName")]
     public string OrgName { get; set; } = null!;
+    [JsonPropertyName("services")]
+    public List< string>? Services { get; set; }
 
 }

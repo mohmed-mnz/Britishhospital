@@ -10,7 +10,9 @@ public interface IReservationServices
     Task<GResponse<ReservationsDto>> UpdateReservation(ReservationsUpdateStatusDto reservation);
     Task<GResponse<ReservationsDto>> CancellReservation(long id);
     Task<GResponse<List<ReservationsCounterDetailsDto>>> GetReservationsByOrgId(int orgId,int counterid);
+    Task<GResponse<List<ReservationsDto>>> GetReservationsBasedOnOrgId(int orgId);
 
     Task<GResponse<ReservationsDto>>CallNextInQueue(CallNextInqueueReq callnextinqueuereq);
     Task<GResponse<ReservationStatisticsDto>> reservationstatisticsbasedonorgid(FilterReservationStatistics filter);
+
 }

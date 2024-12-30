@@ -1,11 +1,13 @@
 ﻿using ApiContracts.Reservation;
 using BussinesLayer.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BritshHospital.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
+[Authorize]
 
 public class ReservationsController : ControllerBase
 {
@@ -62,6 +64,13 @@ public class ReservationsController : ControllerBase
     public async Task<IActionResult> ReservationStatisticsBasedOnOrgId([FromBody] FilterReservationStatistics filter)
     {
         var result = await _Services.reservationstatisticsbasedonorgid(filter);
+        return Ok(result);
+    }
+    [HttpGet]
+    [Route("get-reservations-based-on-orgid/{orgId}")]
+    public async Task<IActionResult> GetReservationsBasedOnOrgId(int orgId)
+    {
+        var result = await _Services.GetReservationsBasedOnOrgId(orgId);
         return Ok(result);
     }
 

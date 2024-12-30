@@ -11,12 +11,14 @@ using Microsoft.EntityFrameworkCore;
 using Models.Models;
 using SharedConfig;
 using System.Data;
+using System.Security.Cryptography;
 using System.Text;
 namespace BussinesLayer.Services;
 
 public class ReservationService(IReservationsRepository _repository, IMapper _mapper
     ,IServiceReservationRepository _serviceReservation,AppConfiguration _appConfig,IHubContext<SignalRConfig> _hubContext
-    , ICustomerRepository _citizenRepository, IServiceRepository _servicesrepository, IDistributedLockProvider _synchronizationProvider,ICounterServicesRepository _counterServicesRepository) : IReservationServices
+    , ICustomerRepository _citizenRepository, IServiceRepository _servicesrepository, IDistributedLockProvider _synchronizationProvider,ICounterServicesRepository _counterServicesRepository) 
+    : IReservationServices
 {
     public async Task<GResponse<ReservationsDto>> AddReservation(ReservationsAddDto reservation)
     {
@@ -142,23 +144,26 @@ public class ReservationService(IReservationsRepository _repository, IMapper _ma
 
     public async Task<GResponse<List<ReservationsCounterDetailsDto>>> GetReservationsByOrgId(int orgid, int counterid)
     {
-        // Fetch all service IDs associated with the given counter ID
         var servicesId = await _counterServicesRepository
-            .Where(x => x.CounterId == counterid)
+            .Where(x => x.CounterId == counterid)!
             .Select(x => x.ServiceId)
             .ToListAsync();
 
-        // Fetch all reservations that match the organization ID and service IDs
         var reservations = await _repository
-            .Where(x => x.Orgid == orgid && servicesId.Contains(x.ServiceId))!
+            .Where(x => x.Orgid == orgid && servicesId.Contains(x.ServiceId) && x.ReservationDate.Date == DateTime.Now.Date)!
+            .ToListAsync();
+
+
+
+
+        reservations = await _repository.AsQueryable()
             .Include(x => x.Service)
                 .ThenInclude(s => s.CounterServices)
                     .ThenInclude(cs => cs.Counter)
+            .Include(r=>r.ReservationsServices)
             .Include(x => x.Citizen)
             .Include(x => x.Customer)
-            .Include(x => x.Org)
-            .AsSplitQuery()
-            .ToListAsync();
+            .Include(x => x.Org).ToListAsync();
 
         var groupedReservations = reservations
             .GroupBy(r => r.Service!.CounterServices
@@ -170,7 +175,7 @@ public class ReservationService(IReservationsRepository _repository, IMapper _ma
                 ReservationData = group.Select(r => new ReservationsDto
                 {
                     Id = r.Id,
-                    Nid = r.Nid,
+                    Nid = r.Nid!,
                     ReservationDate = r.ReservationDate,
                     CreatedOn = DateTime.Now,
                     Name = r.Citizen?.Name,
@@ -185,7 +190,8 @@ public class ReservationService(IReservationsRepository _repository, IMapper _ma
                     CallAt = r.CallAt,
                     ReservationType = r.ReservationType,
                     Orgid = r.Orgid,
-                    OrgName = r.Org?.OrgName!
+                    OrgName = r.Org?.OrgName!,
+                    Services = r.ReservationsServices!.Select(rs => rs.Service!.ServiceName).ToList()!
                 }).ToList()
             })
             .ToList();
@@ -328,5 +334,23 @@ public class ReservationService(IReservationsRepository _repository, IMapper _ma
             TotalReservations = reservation.Count()
         };
         return GResponse<ReservationStatisticsDto>.CreateSuccess(dto);
+    }
+
+    public async Task<GResponse<List<ReservationsDto>>> GetReservationsBasedOnOrgId(int orgId)
+    {
+        var reservations = await _repository
+           .Where(x => x.Orgid == orgId && x.ReservationDate==DateTime.Now.Date)!
+           .Include(x => x.Service)
+               .ThenInclude(s => s.CounterServices)
+                   .ThenInclude(cs => cs.Counter)
+           .Include(x => x.Citizen)
+           .Include(x => x.Customer)
+           .Include(x => x.Org)
+           .AsSplitQuery()
+           .ToListAsync();
+
+        var dto = reservations.Select(r => _mapper.Map<ReservationsDto>(r)).ToList();
+        return GResponse<List<ReservationsDto>>.CreateSuccess(dto);
+
     }
 }

@@ -1,11 +1,13 @@
 ﻿using ApiContracts.groupusers;
 using BussinesLayer.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BritshHospital.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
+[Authorize]
 public class GroupUserController(IGroupUserServices services) : ControllerBase
 {
     [HttpGet("get-all-Group-users")]
