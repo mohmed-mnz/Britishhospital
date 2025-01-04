@@ -29,7 +29,7 @@ public class ReservationService(IReservationsRepository _repository, IMapper _ma
             var reservationEntity = _mapper.Map<Reservations>(reservation);
             reservationEntity.IsCancelled = false;
             reservationEntity.ReservationDate = DateTime.Now;
-            reservationEntity.Status = Status.Pending.ToString();
+            reservationEntity.Status = Status.Waiting.ToString();
             var citizen = await _citizenRepository.Where(x => x.Citizen!.Mobile == reservation.MobileNumber)!
                 .Include(x => x.Citizen)
                 .FirstOrDefaultAsync();
@@ -112,10 +112,16 @@ public class ReservationService(IReservationsRepository _repository, IMapper _ma
             var client = new HttpClient();
             var request = new HttpRequestMessage(HttpMethod.Get, $"https://api.epusheg.com/api/v2/send_bulk?username={username}&password={password}&api_key={sender}&message={message}&from=BritishHosp&to={reservation.MobileNumber}");
             var response = await client.SendAsync(request);
-            response.EnsureSuccessStatusCode();
-            Console.WriteLine(await response.Content.ReadAsStringAsync());
+            try
+            {
+                response.EnsureSuccessStatusCode();
 
-
+            }
+            catch
+            (Exception)
+            {
+                Console.WriteLine(await response.Content.ReadAsStringAsync());
+            }
             return GResponse<ReservationsDto>.CreateSuccess(dto);
         }
     }
@@ -242,8 +248,8 @@ public class ReservationService(IReservationsRepository _repository, IMapper _ma
                 reservationEntity.CallAt = DateTime.Now;
                 break;
 
-            case Status.Completed:
-                reservationEntity.Status = Status.Completed.ToString();
+            case Status.Served:
+                reservationEntity.Status = Status.Served.ToString();
                 reservationEntity.EndServing = DateTime.Now;
                 break;
 
@@ -265,7 +271,7 @@ public class ReservationService(IReservationsRepository _repository, IMapper _ma
         var @lock = _synchronizationProvider.AcquireLock(lockKey);
         using (@lock)
         {
-            var reservation = _repository.Where(x => x.Orgid == callnextinqueuereq.OrgId && x.Status == Status.Pending.ToString() &&x.ServiceId==callnextinqueuereq.ServiceId)!
+            var reservation = _repository.Where(x => x.Orgid == callnextinqueuereq.OrgId && x.Status == Status.Waiting.ToString() &&x.ServiceId==callnextinqueuereq.ServiceId)!
                 .OrderBy(x => x.QueueSerial)
                 .FirstOrDefault();
             if (reservation == null)
@@ -290,9 +296,9 @@ public class ReservationService(IReservationsRepository _repository, IMapper _ma
     }
     public enum Status
     {
-        Pending,
+        Waiting,
         Serving,
-        Completed,
+        Served,
         Cancelled
     }
     public async Task<int> GenerateCounterForServicesAsync(DateTime reservationDate, int orgId, int qgId)
@@ -329,8 +335,8 @@ public class ReservationService(IReservationsRepository _repository, IMapper _ma
         var dto = new ReservationStatisticsDto
         {
             totalCancelledReservations = reservation.Count(x => x.Status == Status.Cancelled.ToString()),
-            totalCompletedReservations = reservation.Count(x => x.Status == Status.Completed.ToString()),
-            totalPendingReservations = reservation.Count(x => x.Status == Status.Pending.ToString()),
+            totalCompletedReservations = reservation.Count(x => x.Status == Status.Served.ToString()),
+            totalPendingReservations = reservation.Count(x => x.Status == Status.Waiting.ToString()),
             totalServingReservations = reservation.Count(x => x.Status == Status.Serving.ToString()),
             TotalReservations = reservation.Count()
         };
@@ -353,5 +359,28 @@ public class ReservationService(IReservationsRepository _repository, IMapper _ma
         var dto = reservations.Select(r => _mapper.Map<ReservationsDto>(r)).ToList();
         return GResponse<List<ReservationsDto>>.CreateSuccess(dto);
 
+    }
+
+    public async Task<GResponse<List<ReservationsDto>>> GetServingReservationsBasedOnOrgId(int orgId)
+    {
+        var reservations = await _repository.Where(x => x.Orgid == orgId && x.Status == Status.Serving.ToString()&&x.ReservationDate.Date==DateTime.Now.Date)!
+            .Include(x => x.Service)
+            .Include(x => x.Citizen)
+            .Include(x => x.Customer)
+            .Include(x => x.Org)
+            .Include(x=>x.ReservationsServices)
+            .AsSplitQuery()
+            .ToListAsync();
+        var dto = reservations.Select(r => _mapper.Map<ReservationsDto>(r)).ToList();
+        foreach (var item in dto)
+        {
+            item.Services = reservations.Where(x => x.Id == item.Id).Select(x => x.ReservationsServices!.Select(x => x.Service!.ServiceName).ToList()).FirstOrDefault()!;
+            item.OrgName = reservations.Where(x => x.Id == item.Id).Select(x => x.Org!.OrgName).FirstOrDefault()!;
+            item.OrgSerial = reservations.Where(x => x.Id == item.Id).Select(x => x.QueueSerial).FirstOrDefault()!;
+            item.QueueSerial = reservations.Where(x => x.Id == item.Id).Select(x => x.QueueSerial).FirstOrDefault()!;
+            item.CreatedOn = DateTime.Now;
+            item.EndServing = null;
+        }
+        return GResponse<List<ReservationsDto>>.CreateSuccess(dto);
     }
 }

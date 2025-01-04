@@ -14,5 +14,6 @@ public interface IReservationServices
 
     Task<GResponse<ReservationsDto>>CallNextInQueue(CallNextInqueueReq callnextinqueuereq);
     Task<GResponse<ReservationStatisticsDto>> reservationstatisticsbasedonorgid(FilterReservationStatistics filter);
+    Task<GResponse<List<ReservationsDto>>> GetServingReservationsBasedOnOrgId(int orgId);
 
 }

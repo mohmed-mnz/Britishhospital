@@ -1,4 +1,6 @@
-﻿using AutoMapper;
+﻿using ApiContracts.DisplayCounter;
+using AutoMapper;
+using Models.Models;
 
 namespace BussinesLayer.Mapping.DisplayCounter;
 
@@ -6,13 +8,18 @@ public class DisplayCounterProfile : Profile
 {
     public DisplayCounterProfile()
     {
-        CreateMap<Models.Models.DisplayCounters, ApiContracts.DisplayCounter.DisplayCountersDto>()
+        CreateMap<DisplayCounters, DisplayCountersDto>()
             .ForMember(destinationMember => destinationMember.DisplayName, memberOptions => memberOptions.MapFrom(source => source.Display!.DisplayName))
             .ForMember(destinationMember => destinationMember.CounterName, memberOptions => memberOptions.MapFrom(source => source.Counter!.CounterName))
             .ReverseMap();
-        CreateMap<ApiContracts.DisplayCounter.DisplayCountersAddDto, Models.Models.DisplayCounters>()
+        CreateMap<DisplayCountersAddDto, DisplayCounters>()
             .ReverseMap();
-        CreateMap<ApiContracts.DisplayCounter.DisplayCountersUpdateDto, Models.Models.DisplayCounters>()
+        CreateMap<DisplayCountersUpdateDto, DisplayCounters>()
             .ReverseMap();
+
+
+        CreateMap<DisplayCounters, DisplayCountersTinyDto>()
+          .ForMember(dest => dest.CounterId, opt => opt.MapFrom(src => src.CounterId))
+          .ForMember(dest => dest.CounterName, opt => opt.MapFrom(src => src.Counter!.CounterName));
     }
 }

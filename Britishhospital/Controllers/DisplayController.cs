@@ -47,4 +47,10 @@ public class DisplayController(IDisplayServices _services) : ControllerBase
         var result = await _services.GetAllBasedonorgid(orgid);
         return result.IsSucceeded ? Ok(result) : BadRequest(result);
     }
+    [HttpGet("get-display-details/{displayId}")]
+    public async Task<IActionResult> GetDisplayDetails(int displayId)
+    {
+        var result = await _services.GetDisplayDetails(displayId);
+        return result.IsSucceeded ? Ok(result) : BadRequest(result);
+    }
 }

@@ -73,5 +73,13 @@ public class ReservationsController : ControllerBase
         var result = await _Services.GetReservationsBasedOnOrgId(orgId);
         return Ok(result);
     }
+    [HttpGet]
+    [Route("get-serving-reservations-based-on-orgid/{orgId}")]
+    public async Task<IActionResult> GetServingReservationsBasedOnOrgId(int orgId)
+    {
+        var result = await _Services.GetServingReservationsBasedOnOrgId(orgId);
+        return Ok(result);
+    }
+
 
 }

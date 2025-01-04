@@ -39,7 +39,7 @@ public class ReservationsDto
     [JsonPropertyName("reservationType")]
     public string? ReservationType { get; set; }
     [JsonPropertyName("orgSerial")]
-    public int? OrgSerial { get; set; }
+    public double? OrgSerial { get; set; }
     [JsonPropertyName("transferedAt")]
     public DateTime? TransferedAt { get; set; }
     [JsonPropertyName("orgId")]
@@ -48,5 +48,6 @@ public class ReservationsDto
     public string OrgName { get; set; } = null!;
     [JsonPropertyName("services")]
     public List< string>? Services { get; set; }
+
 
 }
