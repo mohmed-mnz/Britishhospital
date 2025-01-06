@@ -1,9 +1,11 @@
 ﻿using ApiContracts;
+using ApiContracts.CounterService;
 using ApiContracts.Reservation;
 using AutoMapper;
 using BussinesLayer.HubConfig;
 using BussinesLayer.Interfaces;
 using DataLayer.Interfaces;
+using DataLayer.Repositories;
 using Medallion.Threading;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Data.SqlClient;
@@ -157,24 +159,31 @@ public class ReservationService(IReservationsRepository _repository, IMapper _ma
 
         var reservations = await _repository
             .Where(x => x.Orgid == orgid && servicesId.Contains(x.ServiceId) && x.ReservationDate.Date == DateTime.Now.Date)!
+            .Select(r => new
+            {
+                r.Id,
+                r.Nid,
+                r.ReservationDate,
+                r.QueueSerial,
+                r.CitizenId,
+                r.CustomerId,
+                r.Status,
+                r.MobileNumber,
+                r.TicketNumber,
+                r.ServiceId,
+                r.CallAt,
+                r.ReservationType,
+                r.Orgid,
+                r.Org!.OrgName,
+                r.Service!.ServiceName,
+                CounterName = r.Service.CounterServices.Select(cs => cs.Counter!.CounterName).FirstOrDefault(),
+                CounterId = r.Service.CounterServices.Select(cs => cs.CounterId).FirstOrDefault(),
+                Services = r.ReservationsServices!.Select(rs => rs.Service!.ServiceName).ToList()
+            })
             .ToListAsync();
 
-
-
-
-        reservations = await _repository.AsQueryable()
-            .Include(x => x.Service)
-                .ThenInclude(s => s.CounterServices)
-                    .ThenInclude(cs => cs.Counter)
-            .Include(r=>r.ReservationsServices)
-            .Include(x => x.Citizen)
-            .Include(x => x.Customer)
-            .Include(x => x.Org).ToListAsync();
-
         var groupedReservations = reservations
-            .GroupBy(r => r.Service!.CounterServices
-                .Select(cs => cs.Counter!.CounterName)
-                .FirstOrDefault())
+            .GroupBy(r => r.CounterName)
             .Select(group => new ReservationsCounterDetailsDto
             {
                 CounterName = group.Key,
@@ -184,27 +193,36 @@ public class ReservationService(IReservationsRepository _repository, IMapper _ma
                     Nid = r.Nid!,
                     ReservationDate = r.ReservationDate,
                     CreatedOn = DateTime.Now,
-                    Name = r.Citizen?.Name,
                     QueueSerial = r.QueueSerial,
                     CitizenId = r.CitizenId ?? 0,
                     CustomerId = r.CustomerId ?? 0,
                     Status = r.Status,
-                    CounterId = r.Service?.CounterServices.FirstOrDefault()?.CounterId,
+                    CounterId = r.CounterId,
                     MobileNumber = r.MobileNumber,
                     TicketNumber = r.TicketNumber,
                     ReqId = r.ServiceId,
                     CallAt = r.CallAt,
                     ReservationType = r.ReservationType,
                     Orgid = r.Orgid,
-                    OrgName = r.Org?.OrgName!,
-                    Services = r.ReservationsServices!.Select(rs => rs.Service!.ServiceName).ToList()!,
+                    OrgName = r.OrgName,
+                    Services = r.Services!,
                     EndServing = null
-                }).ToList()
+                }).ToList(),
+                dtos = group
+                    .Select(r => new CounterServicesTinyDto
+                    {
+                        ServiceId = r.ServiceId ?? 0,
+                        serviceName = r.ServiceName,
+                    })
+                    .DistinctBy(dto => dto.ServiceId) 
+                    .ToList()
             })
             .ToList();
 
         return GResponse<List<ReservationsCounterDetailsDto>>.CreateSuccess(groupedReservations);
     }
+
+
 
 
     public async Task<GResponse<ReservationsDto>> UpdateReservation(ReservationsUpdateStatusDto reservation)
@@ -346,7 +364,7 @@ public class ReservationService(IReservationsRepository _repository, IMapper _ma
     public async Task<GResponse<List<ReservationsDto>>> GetReservationsBasedOnOrgId(int orgId)
     {
         var reservations = await _repository
-           .Where(x => x.Orgid == orgId && x.ReservationDate==DateTime.Now.Date)!
+           .Where(x => x.Orgid == orgId && x.ReservationDate.Date==DateTime.Now.Date)!
            .Include(x => x.Service)
                .ThenInclude(s => s.CounterServices)
                    .ThenInclude(cs => cs.Counter)
@@ -382,5 +400,46 @@ public class ReservationService(IReservationsRepository _repository, IMapper _ma
             item.EndServing = null;
         }
         return GResponse<List<ReservationsDto>>.CreateSuccess(dto);
+    }
+
+    public async Task<GResponse<List<AdminReservationStatisticsBasedOneveryDayInTheWeekDto>>> GetReservationStatisticsBasedOnEveryDayInTheWeek(FilterReservationStatistics filterData)
+    {
+        var query = await _repository
+                    .Where(r => r.ReservationDate.Date >= filterData.FromDate.Date
+                                && r.ReservationDate.Date <= filterData.ToDate.Date
+                                &&r.Orgid == filterData.OrgId)!
+                    .GroupBy(r => r.ReservationDate!.Date)
+                    .Select(g => new
+                    {
+                        Date = g.Key,
+                        TotalCount = g.Count(),
+                        TotalServedCount = g.Count(x => x.Status == Status.Served.ToString())
+                    })
+                    .ToListAsync();
+
+        // Map DayOfWeek and aggregate by day
+        var groupedByDay = query
+            .GroupBy(q => q.Date.DayOfWeek)
+            .Select(g => new
+            {
+                Day = g.Key.ToString(),
+                TotalCount = g.Sum(x => x.TotalCount),
+                TotalServedCount = g.Sum(x => x.TotalServedCount),
+                AverageCount = g.Average(x => x.TotalCount),
+                AverageServedCount = g.Average(x => x.TotalServedCount)
+            })
+            .ToList();
+
+        // Map to the result DTO
+        var result = groupedByDay.Select(g => new AdminReservationStatisticsBasedOneveryDayInTheWeekDto
+        {
+            day = g.Day,
+            totalcount = g.TotalCount,
+            totalservedcount = g.TotalServedCount,
+            averagecount = Math.Round(g.AverageCount, 2),
+            averageservedcount = Math.Round(g.AverageServedCount, 2)
+        }).ToList();
+
+        return GResponse<List<AdminReservationStatisticsBasedOneveryDayInTheWeekDto>>.CreateSuccess(result);
     }
 }

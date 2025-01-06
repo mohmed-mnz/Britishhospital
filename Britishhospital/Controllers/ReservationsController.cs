@@ -80,6 +80,13 @@ public class ReservationsController : ControllerBase
         var result = await _Services.GetServingReservationsBasedOnOrgId(orgId);
         return Ok(result);
     }
+    [HttpPost]
+    [Route("get-reservation-statistics-based-on-every-day-in-the-week")]
+    public async Task<IActionResult> GetReservationStatisticsBasedOnEveryDayInTheWeek([FromBody] FilterReservationStatistics filterData)
+    {
+        var result = await _Services.GetReservationStatisticsBasedOnEveryDayInTheWeek(filterData);
+        return Ok(result);
+    }
 
 
 }
