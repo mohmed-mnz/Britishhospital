@@ -20,8 +20,24 @@ public class BookingSettingOrgServices(IBookingSettingOrgRepository bookingSetti
 
         if (orgSetting != null)
         {
-            orgSetting = mapper.Map(bookingSettingOrgAddDto, orgSetting);
+            orgSetting.UserlimitReservation = bookingSettingOrgAddDto.UserlimitReservation ?? 0;
+            orgSetting.OrgId = bookingSettingOrgAddDto.OrgId ?? 0;
+
+            orgSetting.EndWorkingHour = !string.IsNullOrWhiteSpace(bookingSettingOrgAddDto.EndWorkingHour)
+                ? ParseTime(bookingSettingOrgAddDto.EndWorkingHour)
+                : null;
+
+            orgSetting.StartWorkingHour = !string.IsNullOrWhiteSpace(bookingSettingOrgAddDto.StartWorkingHour)
+                ? ParseTime(bookingSettingOrgAddDto.StartWorkingHour)
+                : null;
+
+            orgSetting.KioskClosingTime = !string.IsNullOrWhiteSpace(bookingSettingOrgAddDto.KioskClosingTime)
+                ? ParseTime(bookingSettingOrgAddDto.KioskClosingTime)
+                : null;
+
             await bookingSettingOrgRepository.Commit();
+
+            //  orgSetting = mapper.Map(bookingSettingOrgAddDto, orgSetting);
             orgSetting = await bookingSettingOrgRepository
                 .Where(x => x.Id == orgSetting.Id)!
                 .Include(o => o.Org)
@@ -58,7 +74,25 @@ public class BookingSettingOrgServices(IBookingSettingOrgRepository bookingSetti
             return GResponse<BookingSettingOrgDto>.CreateSuccess(bookingSettingOrgDto);
         }
     }
+    private static TimeSpan? ParseTime(string time)
+    {
+        if (DateTime.TryParseExact(time, "HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsed24Hour))
+        {
+            return parsed24Hour.TimeOfDay;
+        }
 
+        if (DateTime.TryParseExact(time, "HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsed24HourWithoutSeconds))
+        {
+            return parsed24HourWithoutSeconds.TimeOfDay;
+        }
+
+        if (DateTime.TryParseExact(time, "hh:mmtt", CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsed12Hour))
+        {
+            return parsed12Hour.TimeOfDay;
+        }
+        throw new FormatException($"Invalid time format: {time}");
+
+    }
 
 
     public async Task<GResponse<bool>> DeleteBookingSettingOrgAsync(int id)

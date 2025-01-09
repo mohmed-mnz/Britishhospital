@@ -107,6 +107,7 @@ public class ReservationService(IReservationsRepository _repository, IMapper _ma
             }
             var dto = _mapper.Map<ReservationsDto>(reservationEntity);
             await _hubContext.Clients.Group(reservation.OrgId.ToString()).SendAsync("AddReservation", dto);
+          //  await _hubContext.Clients.All.SendAsync("AddReservation", dto);
             var username = _appConfig.SmsSetteings!.UserName;
             var password = _appConfig.SmsSetteings!.Password;
             var sender = _appConfig.SmsSetteings!.api_key;
@@ -249,8 +250,12 @@ public class ReservationService(IReservationsRepository _repository, IMapper _ma
 
             await _repository.Commit();
 
+            //await _hubContext.Clients.All
+            //    .SendAsync("UpdateReservation", reservationEntity);
+
+
             await _hubContext.Clients.Group(reservationEntity.Orgid.ToString())
-                .SendAsync("UpdateReservation", reservationEntity);
+            .SendAsync("UpdateReservation", reservationEntity);
 
             var dto = _mapper.Map<ReservationsDto>(reservationEntity);
             return GResponse<ReservationsDto>.CreateSuccess(dto);
@@ -283,15 +288,15 @@ public class ReservationService(IReservationsRepository _repository, IMapper _ma
         return reservationEntity;
     }
 
-    public Task<GResponse<ReservationsDto>> CallNextInQueue(CallNextInqueueReq callnextinqueuereq)
+    public async Task<GResponse<ReservationsDto>> CallNextInQueue(CallNextInqueueReq callnextinqueuereq)
     {
         var lockKey = $"ReservationServices.CallNextInQueue.Orgid : {callnextinqueuereq.OrgId}";
         var @lock = _synchronizationProvider.AcquireLock(lockKey);
         using (@lock)
         {
-            var reservation = _repository.Where(x => x.Orgid == callnextinqueuereq.OrgId && x.Status == Status.Waiting.ToString() &&x.ServiceId==callnextinqueuereq.ServiceId)!
+            var reservation =await _repository.Where(x => x.Orgid == callnextinqueuereq.OrgId && x.Status == Status.Waiting.ToString() &&x.ServiceId==callnextinqueuereq.ServiceId)!
                 .OrderBy(x => x.QueueSerial)
-                .FirstOrDefault();
+                .FirstOrDefaultAsync();
             if (reservation == null)
             {
                 throw new ApplicationException("No reservation in queue");
@@ -299,10 +304,34 @@ public class ReservationService(IReservationsRepository _repository, IMapper _ma
             reservation.Status = Status.Serving.ToString();
             reservation.CallAt = DateTime.Now;
             reservation.CounterId = callnextinqueuereq.CounterId;
-            _repository.Commit();
+            var counterName = await _counterServicesRepository.Where(x => x.CounterId == callnextinqueuereq.CounterId && x.ServiceId == callnextinqueuereq.ServiceId)!
+                .Select(x => x.Counter!.CounterName)
+                .FirstOrDefaultAsync();
+
+            await _repository.Commit();
             var dto = _mapper.Map<ReservationsDto>(reservation);
-            _hubContext.Clients.Group(callnextinqueuereq.OrgId.ToString()).SendAsync("CallNextInQueue", dto);
-            return Task.FromResult(GResponse<ReservationsDto>.CreateSuccess(dto));
+
+            //    await _hubContext.Clients.All.SendAsync("CallNextInQueue", dto);
+             await  _hubContext.Clients.Group(callnextinqueuereq.OrgId.ToString()).SendAsync("CallNextInQueue", dto);
+
+            var username = _appConfig.SmsSetteings!.UserName;
+            var password = _appConfig.SmsSetteings!.Password;
+            var sender = _appConfig.SmsSetteings!.api_key;
+            var message = $"عميلنا العزيز تم استدعائك للدخول للخدمة الخاصة بك في {counterName}";
+            var client = new HttpClient();
+            var request = new HttpRequestMessage(HttpMethod.Get, $"https://api.epusheg.com/api/v2/send_bulk?username={username}&password={password}&api_key={sender}&message={message}&from=BritishHosp&to={reservation.MobileNumber}");
+            var response = await client.SendAsync(request);
+            try
+            {
+                response.EnsureSuccessStatusCode();
+
+            }
+            catch
+            (Exception)
+            {
+                Console.WriteLine(await response.Content.ReadAsStringAsync());
+            }
+            return GResponse<ReservationsDto>.CreateSuccess(dto);
         }
     }
 

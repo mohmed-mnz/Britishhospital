@@ -35,17 +35,18 @@ internal class Program
         builder.Services.AddSingleton(appConfiguration);
 
 
-        #endregion       
+        #endregion
 
 
         #region AddCors
         var cors = "Cors";
         builder.Services.AddCors(options =>
-            options.AddPolicy(name: cors, p =>
-           p.AllowAnyOrigin()
-            .AllowAnyMethod()
-            .AllowAnyHeader()));
-
+           options.AddPolicy(name: cors, p =>
+               p.AllowAnyOrigin()
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+             //   .AllowCredentials()
+           ));
         #endregion
 
 
@@ -69,25 +70,31 @@ internal class Program
         #endregion
 
         #region SignalR Configuration
-        builder.Services.AddSignalR(options => options.EnableDetailedErrors = true)
-         .AddJsonProtocol(options =>
-         {
-             options.PayloadSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
-             options.PayloadSerializerOptions.MaxDepth = 64;
-         });
+        builder.Services.AddSignalR(options =>
+        {
+            options.EnableDetailedErrors = true;
+            options.KeepAliveInterval = TimeSpan.FromMinutes(2);
+            options.ClientTimeoutInterval = TimeSpan.FromMinutes(3);
+        })
+       .AddJsonProtocol(options =>
+       {
+           options.PayloadSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
+           options.PayloadSerializerOptions.MaxDepth = 64;
+       });
+
         #endregion
 
 
 
         #region DbUpConfiguration
-        DbUpRunner.Start(appConfiguration.DbConfig!.BritshHospitalConnctionString ?? throw new ArgumentException("GovlcConnctionString is not configured"));
+        DbUpRunner.Start(appConfiguration.DbConfig!.BritshHospitalConnctionString ?? throw new ArgumentException("BritshHospitalConnctionString is not configured"));
         #endregion
 
         #region SwaggerConfiguration
         builder.Services.AddSwaggerGen(
         c =>
         {
-            c.SwaggerDoc("v1", new OpenApiInfo { Title = "ProjectStamp API Documentation ", Version = "v1" });
+            c.SwaggerDoc("v1", new OpenApiInfo { Title = "British Hospital API Documentation ", Version = "v1" });
             c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
             {
                 In = ParameterLocation.Header,
@@ -138,35 +145,26 @@ internal class Program
         #endregion
 
         builder.Services.AddSwaggerGen();
-
         builder.Services.AddMemoryCache();
         builder.Services.AddHttpContextAccessor();
         builder.Services.AddHttpClient();
-
         var app = builder.Build();
         app.UseJwtTokenInterceptor();
-
         if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
         {
             app.UseSwagger();
             app.UseSwaggerUI();
         }
         app.UseCors(cors);
-
         app.UseHttpsRedirection();
-
         app.UseResponseCompression();
-
         app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
-
         app.UseAuthentication();
-
         app.UseAuthorization();
-
-
         app.MapControllers();
+
         app.MapHub<SignalRConfig>("/BritishBooking");
 
         app.Run();
     }
-}
+} 

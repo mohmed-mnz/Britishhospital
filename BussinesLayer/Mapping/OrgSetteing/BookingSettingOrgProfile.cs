@@ -12,19 +12,20 @@ public class BookingSettingOrgProfile : Profile
             .ReverseMap();
 
         CreateMap<ApiContracts.OrgSetteing.BookingSettingOrgAddDto, Models.Models.BookingSettingOrg>()
-            .ForMember(dest => dest.StartWorkingHour, opt => opt.MapFrom(src =>
-                !string.IsNullOrWhiteSpace(src.StartWorkingHour)
-                    ? DateTime.ParseExact(src.StartWorkingHour, "hh:mmtt", CultureInfo.InvariantCulture).TimeOfDay
-                    : (TimeSpan?)null))
-            .ForMember(dest => dest.EndWorkingHour, opt => opt.MapFrom(src =>
-                !string.IsNullOrWhiteSpace(src.EndWorkingHour)
-                    ? DateTime.ParseExact(src.EndWorkingHour, "hh:mmtt", CultureInfo.InvariantCulture).TimeOfDay
-                    : (TimeSpan?)null))
-            .ForMember(dest => dest.KioskClosingTime, opt => opt.MapFrom(src =>
-                !string.IsNullOrWhiteSpace(src.KioskClosingTime)
-                    ? DateTime.ParseExact(src.KioskClosingTime, "hh:mmtt", CultureInfo.InvariantCulture).TimeOfDay
-                    : (TimeSpan?)null))
-            .ReverseMap();
+       .ForMember(dest => dest.StartWorkingHour, opt => opt.MapFrom(src =>
+           !string.IsNullOrWhiteSpace(src.StartWorkingHour)
+               ? DateTime.ParseExact(src.StartWorkingHour, "HH:mm:ss", CultureInfo.InvariantCulture).TimeOfDay
+               : (TimeSpan?)null))
+       .ForMember(dest => dest.EndWorkingHour, opt => opt.MapFrom(src =>
+           !string.IsNullOrWhiteSpace(src.EndWorkingHour)
+               ? DateTime.ParseExact(src.EndWorkingHour, "HH:mm:ss", CultureInfo.InvariantCulture).TimeOfDay
+               : (TimeSpan?)null))
+       .ForMember(dest => dest.KioskClosingTime, opt => opt.MapFrom(src =>
+           !string.IsNullOrWhiteSpace(src.KioskClosingTime)
+               ? DateTime.ParseExact(src.KioskClosingTime, "HH:mm:ss", CultureInfo.InvariantCulture).TimeOfDay
+               : (TimeSpan?)null))
+       .ReverseMap();
+
 
         CreateMap<ApiContracts.OrgSetteing.BookingSettingOrgUpdateDto, Models.Models.BookingSettingOrg>()
             .ForMember(dest => dest.StartWorkingHour, opt => opt.MapFrom(src =>
