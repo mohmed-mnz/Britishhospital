@@ -312,7 +312,9 @@ public class ReservationService(IReservationsRepository _repository, IMapper _ma
             var dto = _mapper.Map<ReservationsDto>(reservation);
 
             //    await _hubContext.Clients.All.SendAsync("CallNextInQueue", dto);
-             await  _hubContext.Clients.Group(callnextinqueuereq.OrgId.ToString()).SendAsync("CallNextInQueue", dto);
+             await 
+                _hubContext.Clients.Group(callnextinqueuereq.OrgId.ToString())
+                .SendAsync("CallNextInQueue", dto);
 
             var username = _appConfig.SmsSetteings!.UserName;
             var password = _appConfig.SmsSetteings!.Password;
