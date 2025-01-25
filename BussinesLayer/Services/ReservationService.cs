@@ -5,7 +5,6 @@ using AutoMapper;
 using BussinesLayer.HubConfig;
 using BussinesLayer.Interfaces;
 using DataLayer.Interfaces;
-using DataLayer.Repositories;
 using Medallion.Threading;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Data.SqlClient;
@@ -13,8 +12,6 @@ using Microsoft.EntityFrameworkCore;
 using Models.Models;
 using SharedConfig;
 using System.Data;
-using System.Security.Cryptography;
-using System.Text;
 namespace BussinesLayer.Services;
 
 public class ReservationService(IReservationsRepository _repository, IMapper _mapper
@@ -151,76 +148,149 @@ public class ReservationService(IReservationsRepository _repository, IMapper _ma
         return GResponse<ReservationsDto>.CreateSuccess(dto);
     }
 
-    public async Task<GResponse<List<ReservationsCounterDetailsDto>>> GetReservationsByOrgId(int orgid, int counterid)
+    public async Task<GResponse<List<ReservationsCounterDetailsDto>>> GetReservationsByOrgId(int orgid, int counterid,int serviceId)
     {
-        var servicesId = await _counterServicesRepository
-            .Where(x => x.CounterId == counterid)!
-            .Select(x => x.ServiceId)
-            .ToListAsync();
 
-        var reservations = await _repository
-            .Where(x => x.Orgid == orgid && servicesId.Contains(x.ServiceId) && x.ReservationDate.Date == DateTime.Now.Date)!
-            .Select(r => new
-            {
-                r.Id,
-                r.Nid,
-                r.ReservationDate,
-                r.QueueSerial,
-                r.CitizenId,
-                r.CustomerId,
-                r.Status,
-                r.MobileNumber,
-                r.TicketNumber,
-                r.ServiceId,
-                r.CallAt,
-                r.ReservationType,
-                r.Orgid,
-                r.Org!.OrgName,
-                r.Service!.ServiceName,
-                CounterName = r.Service.CounterServices.Select(cs => cs.Counter!.CounterName).FirstOrDefault(),
-                CounterId = r.Service.CounterServices.Select(cs => cs.CounterId).FirstOrDefault(),
-                Services = r.ReservationsServices!.Select(rs => rs.Service!.ServiceName).ToList()
-            })
-            .ToListAsync();
+        if (serviceId != 0)
+        {
+          var  servicesId =  serviceId;
+          var reservations = await _repository
+          .Where(x => x.Orgid == orgid && servicesId == x.ServiceId && x.ReservationDate.Date == DateTime.Now.Date)!
+          .Select(r => new
+          {
+              r.Id,
+              r.Nid,
+              r.ReservationDate,
+              r.QueueSerial,
+              r.CitizenId,
+              r.CustomerId,
+              r.Status,
+              r.MobileNumber,
+              r.TicketNumber,
+              r.ServiceId,
+              r.CallAt,
+              r.ReservationType,
+              r.Orgid,
+              r.Org!.OrgName,
+              r.Service!.ServiceName,
+              CounterName = r.Service.CounterServices.Select(cs => cs.Counter!.CounterName).FirstOrDefault(),
+              CounterId = r.Service.CounterServices.Select(cs => cs.CounterId).FirstOrDefault(),
+              Services = r.ReservationsServices!.Select(rs => rs.Service!.ServiceName).ToList()
+          })
+          .ToListAsync();
 
-        var groupedReservations = reservations
-            .GroupBy(r => r.CounterName)
-            .Select(group => new ReservationsCounterDetailsDto
-            {
-                CounterName = group.Key,
-                ReservationData = group.Select(r => new ReservationsDto
+            var groupedReservations = reservations
+                .GroupBy(r => r.CounterName)
+                .Select(group => new ReservationsCounterDetailsDto
                 {
-                    Id = r.Id,
-                    Nid = r.Nid!,
-                    ReservationDate = r.ReservationDate,
-                    CreatedOn = DateTime.Now,
-                    QueueSerial = r.QueueSerial,
-                    CitizenId = r.CitizenId ?? 0,
-                    CustomerId = r.CustomerId ?? 0,
-                    Status = r.Status,
-                    CounterId = r.CounterId,
-                    MobileNumber = r.MobileNumber,
-                    TicketNumber = r.TicketNumber,
-                    ReqId = r.ServiceId,
-                    CallAt = r.CallAt,
-                    ReservationType = r.ReservationType,
-                    Orgid = r.Orgid,
-                    OrgName = r.OrgName,
-                    Services = r.Services!,
-                    EndServing = null
-                }).ToList(),
-                dtos = group
-                    .Select(r => new CounterServicesTinyDto
+                    CounterName = group.Key,
+                    ReservationData = group.Select(r => new ReservationsDto
                     {
-                        ServiceId = r.ServiceId ?? 0,
-                        serviceName = r.ServiceName,
-                    })
-                    .DistinctBy(dto => dto.ServiceId) 
-                    .ToList()
-            })
-            .ToList();
+                        Id = r.Id,
+                        Nid = r.Nid!,
+                        ReservationDate = r.ReservationDate,
+                        CreatedOn = DateTime.Now,
+                        QueueSerial = r.QueueSerial,
+                        CitizenId = r.CitizenId ?? 0,
+                        CustomerId = r.CustomerId ?? 0,
+                        Status = r.Status,
+                        CounterId = r.CounterId,
+                        MobileNumber = r.MobileNumber,
+                        TicketNumber = r.TicketNumber,
+                        ReqId = r.ServiceId,
+                        CallAt = r.CallAt,
+                        ReservationType = r.ReservationType,
+                        Orgid = r.Orgid,
+                        OrgName = r.OrgName,
+                        Services = r.Services!,
+                        EndServing = null
+                    }).ToList(),
+                    dtos = group
+                        .Select(r => new CounterServicesTinyDto
+                        {
+                            ServiceId = r.ServiceId ?? 0,
+                            serviceName = r.ServiceName,
+                        })
+                        .DistinctBy(dto => dto.ServiceId)
+                        .ToList()
+                })
+                .ToList();
 
-        return GResponse<List<ReservationsCounterDetailsDto>>.CreateSuccess(groupedReservations);
+            return GResponse<List<ReservationsCounterDetailsDto>>.CreateSuccess(groupedReservations);
+        }
+        else
+        {
+            var servicesId = await _counterServicesRepository
+           .Where(x => x.CounterId == counterid)!
+           .Select(x => x.ServiceId)
+           .ToListAsync();
+            var reservations = await _repository
+          .Where(x => x.Orgid == orgid && servicesId.Contains(x.ServiceId) && x.ReservationDate.Date == DateTime.Now.Date)!
+          .Select(r => new
+          {
+              r.Id,
+              r.Nid,
+              r.ReservationDate,
+              r.QueueSerial,
+              r.CitizenId,
+              r.CustomerId,
+              r.Status,
+              r.MobileNumber,
+              r.TicketNumber,
+              r.ServiceId,
+              r.CallAt,
+              r.ReservationType,
+              r.Orgid,
+              r.Org!.OrgName,
+              r.Service!.ServiceName,
+              CounterName = r.Service.CounterServices.Select(cs => cs.Counter!.CounterName).FirstOrDefault(),
+              CounterId = r.Service.CounterServices.Select(cs => cs.CounterId).FirstOrDefault(),
+              Services = r.ReservationsServices!.Select(rs => rs.Service!.ServiceName).ToList()
+          })
+          .ToListAsync();
+
+            var groupedReservations = reservations
+                .GroupBy(r => r.CounterName)
+                .Select(group => new ReservationsCounterDetailsDto
+                {
+                    CounterName = group.Key,
+                    ReservationData = group.Select(r => new ReservationsDto
+                    {
+                        Id = r.Id,
+                        Nid = r.Nid!,
+                        ReservationDate = r.ReservationDate,
+                        CreatedOn = DateTime.Now,
+                        QueueSerial = r.QueueSerial,
+                        CitizenId = r.CitizenId ?? 0,
+                        CustomerId = r.CustomerId ?? 0,
+                        Status = r.Status,
+                        CounterId = r.CounterId,
+                        MobileNumber = r.MobileNumber,
+                        TicketNumber = r.TicketNumber,
+                        ReqId = r.ServiceId,
+                        CallAt = r.CallAt,
+                        ReservationType = r.ReservationType,
+                        Orgid = r.Orgid,
+                        OrgName = r.OrgName,
+                        Services = r.Services!,
+                        EndServing = null
+                    }).ToList(),
+                    dtos = group
+                        .Select(r => new CounterServicesTinyDto
+                        {
+                            ServiceId = r.ServiceId ?? 0,
+                            serviceName = r.ServiceName,
+                        })
+                        .DistinctBy(dto => dto.ServiceId)
+                        .ToList()
+                })
+                .ToList();
+
+            return GResponse<List<ReservationsCounterDetailsDto>>.CreateSuccess(groupedReservations);
+        }
+       
+
+      
     }
 
     public async Task<GResponse<List<ReservationsCounterDetailsDto>>> GetReservationsServingByOrgId(int orgid, int counterid)
@@ -365,17 +435,31 @@ public class ReservationService(IReservationsRepository _repository, IMapper _ma
         var @lock = _synchronizationProvider.AcquireLock(lockKey);
         using (@lock)
         {
-            var reservation =await _repository.Where(x => x.Orgid == callnextinqueuereq.OrgId && x.Status == Status.Waiting.ToString() &&x.ServiceId==callnextinqueuereq.ServiceId)!
-                .Include(se=>se.Service)
-                .OrderBy(x => x.QueueSerial)
-                .FirstOrDefaultAsync();
-            if (reservation == null)
+            Reservations? reservation = null;
+
+            if(callnextinqueuereq.WithDate == true)
             {
-                throw new ApplicationException("No reservation in queue");
+                reservation = await _repository.Where(x => x.Orgid == callnextinqueuereq.OrgId && x.Status == Status.Waiting.ToString() &&  x.ReservationDate.Date == DateTime.Now.Date)!
+                    .Include(se => se.Service)
+                    .OrderBy(x => x.ReservationDate)
+                    .FirstOrDefaultAsync();
             }
+            else
+            {
+                reservation = await _repository.Where(x => x.Orgid == callnextinqueuereq.OrgId && x.Status == Status.Waiting.ToString() && x.ServiceId == callnextinqueuereq.ServiceId)!
+                    .Include(se => se.Service)
+                    .OrderBy(x => x.QueueSerial)
+                    .FirstOrDefaultAsync();
+            }
+
+
+            if (reservation == null)
+                throw new ApplicationException("No reservation in queue");
+
             reservation.Status = Status.Serving.ToString();
             reservation.CallAt = DateTime.Now;
             reservation.CounterId = callnextinqueuereq.CounterId;
+          
             var counterName = await _counterServicesRepository.Where(x => x.CounterId == callnextinqueuereq.CounterId && x.ServiceId == callnextinqueuereq.ServiceId)!
                 .Select(x => x.Counter!.CounterName)
                 .FirstOrDefaultAsync();
@@ -387,7 +471,7 @@ public class ReservationService(IReservationsRepository _repository, IMapper _ma
             var dto = _mapper.Map<ReservationsDto>(reservation);
 
                 dto.Services = _repository.Where(x => x.Id == dto.Id)!.Select(x => x.ReservationsServices!.Select(x => x.Service!.ServiceName).ToList()).FirstOrDefault()!;
-            
+
 
 
 
@@ -395,9 +479,8 @@ public class ReservationService(IReservationsRepository _repository, IMapper _ma
 
 
             //    await _hubContext.Clients.All.SendAsync("CallNextInQueue", dto);
-            await 
-                _hubContext.Clients.Group(callnextinqueuereq.OrgId.ToString())
-                .SendAsync("CallNextInQueue", dto);
+
+            await _hubContext.Clients.Group(callnextinqueuereq.OrgId.ToString()).SendAsync("CallNextInQueue", dto);
 
             var username = _appConfig.SmsSetteings!.UserName;
             var password = _appConfig.SmsSetteings!.Password;

@@ -21,7 +21,7 @@ public class ReservationsController : ControllerBase
     [Route("get-reservations-based-on-orgid-and-counterid")]
     public async Task<IActionResult> GetReservationsByOrgId(ReservationFilterDto dto)
     {
-        var result = await _Services.GetReservationsByOrgId(dto.OrgId,dto.CounterId);
+        var result = await _Services.GetReservationsByOrgId(dto.OrgId,dto.CounterId,dto.serviceId);
         return Ok(result);
     }
     [HttpPost]

@@ -12,4 +12,6 @@ public class ReservationsAddDto
 
     [JsonPropertyName("orgId")]
     public int OrgId { get; set; }
+
+
 }
