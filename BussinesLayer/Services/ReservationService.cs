@@ -110,6 +110,7 @@ public class ReservationService(IReservationsRepository _repository, IMapper _ma
             dto.CreatedOn = DateTime.Now;
             dto.ReqId = reservation.ServicesId[0];
             await _hubContext.Clients.Group(reservation.OrgId.ToString()).SendAsync("AddReservation", dto);
+          //  await _hubContext.Clients.All.SendAsync("AddReservation", dto);
             var username = _appConfig.SmsSetteings!.UserName;
             var password = _appConfig.SmsSetteings!.Password;
             var sender = _appConfig.SmsSetteings!.api_key;

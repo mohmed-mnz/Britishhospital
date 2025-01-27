@@ -49,4 +49,5 @@ public class ReservationsDto
     [JsonPropertyName("services")]
     public List< string>? Services { get; set; }
 
+
 }
