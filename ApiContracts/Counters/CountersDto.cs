@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using ApiContracts.CounterService;
+using System.Text.Json.Serialization;
 
 namespace ApiContracts.Counters;
 
@@ -19,4 +20,8 @@ public class CountersDto
     public int? Orgid { get; set; }
     [JsonPropertyName("orgName")]
     public string? Orgname { get; set; }
+
+    [JsonPropertyName("CounterServices")]
+    public List<CounterServicesDto>? CounterServices { get; set; }
+
 }

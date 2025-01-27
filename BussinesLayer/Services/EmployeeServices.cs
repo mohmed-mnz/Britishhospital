@@ -4,13 +4,14 @@ using AutoMapper;
 using BussinesLayer.Interfaces;
 using BussinesLayer.Interfaces.Token;
 using DataLayer.Interfaces;
+using DataLayer.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Models.Models;
 using SharedConfig;
 
 namespace BussinesLayer.Services;
 
-public class EmployeeServices(IEmployeeRepository _repository, IMapper _mapper, ICitizenRepository citizenRepository, ITokenService _tokenService, IPresistanceService _presistanceService, AppConfiguration _appConfig) : IEmployeeServices
+public class EmployeeServices(IEmployeeRepository _repository, IMapper _mapper, ICitizenRepository citizenRepository, ITokenService _tokenService, IPresistanceService _presistanceService, AppConfiguration _appConfig,ICounterRepository _counterRepository) : IEmployeeServices
 {
     public async Task<GResponse<bool>> DeleteEmployeeAsync(int id)
     {
@@ -26,7 +27,7 @@ public class EmployeeServices(IEmployeeRepository _repository, IMapper _mapper, 
 
     public async Task<GResponse<EmployeeDto>> GetEmployeeByIdAsync(int id)
     {
-        var employee = await _repository.FindAsync(id)!;
+        var employee = await _repository.Where(x=>x.Id==id)!.Include(x => x.Org).Include(z => z.Citizen).Include(g => g.GroupUser).ThenInclude(gg => gg.Group).AsSplitQuery().FirstOrDefaultAsync();
         if (employee == null)
             throw new ApplicationException("emp not found");
         var employeeDto = _mapper.Map<EmployeeDto>(employee);
@@ -61,7 +62,7 @@ public class EmployeeServices(IEmployeeRepository _repository, IMapper _mapper, 
         var user = await _repository.Where(u => u.Username == loginDto.Username)!.Include(c => c.Citizen).Include(o => o.Org).Include(x => x.GroupUser).ThenInclude(g => g.Group).FirstOrDefaultAsync();
 
         if (user == null)
-            throw new ApplicationException("UserName or Password is not valid");
+            throw new ApplicationException("UserName or Password is not valid or Not Active User");
 
         if (user.IsActive == false)
             throw new ApplicationException("UserName or Password is not valid or Not Active User");
@@ -84,6 +85,10 @@ public class EmployeeServices(IEmployeeRepository _repository, IMapper _mapper, 
                         { "TokenId", tokenId.ToString() }
                     };
 
+
+            var counterid = await _counterRepository.Where(x => x.empid == user.Id)!.FirstOrDefaultAsync();
+
+
             var emp = new EmployeeLoginDto();
             emp.CTZNID = user.Citizenid ?? 0;
             emp.EMPID = user.Id;
@@ -94,12 +99,19 @@ public class EmployeeServices(IEmployeeRepository _repository, IMapper _mapper, 
             emp.OrgName = user.Org!.OrgName;
             emp.ExpirytimeinMinutes = _appConfig.Jwt.ExpirytimeinMinutes;
             emp.Roles = user.GroupUser.Select(x => x.Group!.GroupName).ToList()!;
+            if(counterid != null)
+            {
+                emp.CounterId = counterid!.CounterId;
+                emp.counterName = counterid.CounterName!;
+            }
+
+
             return GResponse<EmployeeLoginDto>.CreateSuccess(emp);
         }
         else
         {
 
-            return GResponse<EmployeeLoginDto>.CreateFailure("407", "Password is not valid");
+            return GResponse<EmployeeLoginDto>.CreateFailure("407", "Password or UserName is not valid or Not Active User");
         }
     }
 
@@ -184,5 +196,19 @@ public class EmployeeServices(IEmployeeRepository _repository, IMapper _mapper, 
         await _repository.Commit();
         return GResponse<bool>.CreateSuccess(true);
 
+    }
+
+    public async Task<GResponse<bool>> ChangePassword(string OldPass, string NewPass, int empId)
+    {
+        var encOldPass = _repository.EncryptPassword(OldPass).Result;
+        var emp = _repository.AsQueryable()!.FirstOrDefault(x => x.Id == empId&&x.Password==encOldPass);
+        if (emp == null)
+        {
+            return GResponse<bool>.CreateFailure("404", "Employee Not Found");
+        }
+        emp!.Password = _repository.EncryptPassword(NewPass).Result;
+       await _repository.Commit();
+
+        return GResponse<bool>.CreateSuccess(true);
     }
 }

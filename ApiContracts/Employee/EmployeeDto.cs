@@ -27,5 +27,7 @@ public class EmployeeDto
 
     [JsonPropertyName("isActicve")]
     public bool? isActicve { get; set; }
+    [JsonPropertyName("address")]
+    public string? Address { get; set; }
 
 }

@@ -1,11 +1,13 @@
 ﻿using ApiContracts.Organization;
 using BussinesLayer.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BritshHospital.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
+[Authorize]
 
 public class OrganizationController : ControllerBase
 {
@@ -25,7 +27,7 @@ public class OrganizationController : ControllerBase
     [HttpPost]
     [Route("add-organization")]
     public async Task<IActionResult> AddOrganization(OrganizationAddDto organizationDto)
-    {
+     {
         var result = await _organizationServieces.AddORganization(organizationDto);
         return Ok(result);
     }
@@ -37,7 +39,7 @@ public class OrganizationController : ControllerBase
         return Ok(result);
     }
     [HttpDelete]
-    [Route("delete-organization")]
+    [Route("delete-organization/{orgid}")]
     public async Task<IActionResult> DeleteOrganization(int orgid)
     {
         var result = await _organizationServieces.DeleteOrganization(orgid);

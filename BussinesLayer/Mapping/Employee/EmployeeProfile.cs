@@ -16,6 +16,7 @@ public class EmployeeProfile : Profile
             .ForMember(dest => dest.CitizenName, opt => opt.MapFrom(src => src.Citizen!.Name))
             .ForMember(dest => dest.CitizenId, opt => opt.MapFrom(src => src.Citizen!.CitizenId))
             .ForMember(dest => dest.Nid, opt => opt.MapFrom(src => src.Citizen!.Nid))
+            .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.Citizen!.Address))
             .ReverseMap();
         CreateMap<EmployeeAddDto, Models.Models.Employee>().ReverseMap();
         CreateMap<EmployeeUpdateDataDto, Models.Models.Employee>().ReverseMap();

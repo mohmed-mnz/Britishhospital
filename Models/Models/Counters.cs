@@ -10,9 +10,9 @@ public partial class Counters
 
     public bool? IsActive { get; set; }
 
-    public int empid {  get; set; }
+    public int? empid {  get; set; }
 
-    public int Orgid { get; set; }
+    public int? Orgid { get; set; }
 
 
 

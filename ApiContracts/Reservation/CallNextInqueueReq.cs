@@ -10,4 +10,6 @@ public class CallNextInqueueReq
     public int CounterId { get; set; }
     [JsonPropertyName("serviceId")]
     public int ServiceId { get; set; }
+    [JsonPropertyName("withDate")]
+    public bool? WithDate { get; set; }
 }

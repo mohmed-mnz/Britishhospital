@@ -1,11 +1,13 @@
 ﻿using ApiContracts.Service;
 using BussinesLayer.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BritshHospital.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
+[Authorize]
 public class ServicesController(IServicesServices _Services) : ControllerBase
 {
     [HttpGet("get-all-services")]

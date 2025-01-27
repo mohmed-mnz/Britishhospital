@@ -14,7 +14,8 @@ public class SignalRConfig:Hub
     {
         await Groups.RemoveFromGroupAsync(Context.ConnectionId, orgId);
     }
-    public async Task invoke(SignalRTest test) {
-   await Clients.Client(this.Context.ConnectionId).SendAsync("StatesUpdated", test);
+    public async Task invoke(SignalRTest test)
+    {
+        await Clients.Client(this.Context.ConnectionId).SendAsync("Reservation Added", test);
     }
 }

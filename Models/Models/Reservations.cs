@@ -35,15 +35,16 @@ public partial class Reservations
     public string? ReservationType { get; set; }
 
     public int? Orgid { get; set; }
+
     public int? ServiceId { get; set; }
 
-    public virtual Citizen Citizen { get; set; } = null!;
+    public virtual Citizen? Citizen { get; set; } = null!;
 
-    public virtual Customer Customer { get; set; } = null!;
+    public virtual Customer? Customer { get; set; } = null!;
 
 
     public virtual Service? Service { get; set; }
 
     public virtual Organization? Org { get; set; }
-    public virtual ICollection<ServiceReservation> ReservationsServices { get; set; } = new List<ServiceReservation>();
+    public virtual ICollection<ServiceReservation>? ReservationsServices { get; set; }
 }

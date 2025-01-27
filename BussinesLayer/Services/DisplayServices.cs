@@ -1,6 +1,7 @@
 ﻿using ApiContracts;
 using ApiContracts.Display;
 using AutoMapper;
+using BussinesLayer.Interface;
 using BussinesLayer.Interfaces;
 using DataLayer.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -8,7 +9,7 @@ using Models.Models;
 
 namespace BussinesLayer.Services;
 
-public class DisplayServices(IDisplayRepository displayRepository, IMapper mapper) : IDisplayServices
+public class DisplayServices(IDisplayRepository displayRepository, IMapper mapper,IAttachmetsService attachmentServices) : IDisplayServices
 {
     public async Task<GResponse<DisplayDto>> AddDisplay(DisplayAddDto model)
     {
@@ -59,6 +60,35 @@ public class DisplayServices(IDisplayRepository displayRepository, IMapper mappe
 
         var result = mapper.Map<DisplayDto>(display);
         return GResponse<DisplayDto>.CreateSuccess(result);
+    }
+
+    public async Task<GResponse<DisplayDetailsDto>> GetDisplayDetails(int displayId)
+    {
+        var display =await displayRepository.Where(x => x.DisplayId == displayId)!
+            .Include(x => x.Org)
+            .Include(x => x.DisplayAdverts)
+            .ThenInclude(x => x.Advert)
+            .Include(x => x.DisplayCounters)
+            .ThenInclude(x => x.Counter)
+            .FirstOrDefaultAsync();
+            
+        if (display == null)
+        {
+            throw new ApplicationException("Display not found");
+        }
+        var result = mapper.Map< DisplayDetailsDto>(display);
+        foreach (var item in result.DisplayAdverts)
+        {
+            item.AdvertName = display.DisplayAdverts.FirstOrDefault(x => x.AdvertId == item.AdvertId)?.Advert.AdvertName!;
+            item.MediaFile = await attachmentServices.RetrieveFileAsBase64("", item.MediaFile!);
+            item.Mediatype = display.DisplayAdverts.FirstOrDefault(x => x.AdvertId == item.AdvertId)?.Advert.Mediatype!;
+
+        }
+        foreach (var item in result.DisplayCounters)
+        {
+            item.CounterName = display.DisplayCounters.FirstOrDefault(x => x.CounterId == item.CounterId)?.Counter!.CounterName!;
+        }
+        return GResponse<DisplayDetailsDto>.CreateSuccess(result);
     }
 
     public async Task<GResponse<DisplayDto>> UpdateDisplay(DisplayUpdateDto model)

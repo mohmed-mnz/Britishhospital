@@ -11,4 +11,5 @@ public interface IDisplayServices
     Task<GResponse<DisplayDto>> UpdateDisplay(DisplayUpdateDto model);
     Task<GResponse<bool>> DeleteDisplay(int id);
     Task<GResponse<IEnumerable<DisplayDto>>> GetAllBasedonorgid(int orgid);
+    Task<GResponse<DisplayDetailsDto>>GetDisplayDetails(int displayId);
 }

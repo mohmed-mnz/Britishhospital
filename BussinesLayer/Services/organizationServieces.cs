@@ -15,7 +15,7 @@ public class organizationServieces(IOrganizationRepository _repository, IMapper 
         var org = _mapper.Map<Organization>(organizationDto);
         await _repository.InsertAsync(org);
         await _repository.Commit();
-        var orgDto = _mapper.Map<OrganizationDto>(organizationDto);
+        var orgDto = _mapper.Map<OrganizationDto>(org);
         return GResponse<OrganizationDto>.CreateSuccess(orgDto);
     }
 

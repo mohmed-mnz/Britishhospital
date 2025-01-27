@@ -46,6 +46,24 @@ public class CounterController(ICountersServices _services) : ControllerBase
         var result = await _services.GetAllBasedonorgid(orgid);
         return result.IsSucceeded ? Ok(result) : BadRequest(result);
     }
+    [HttpPost("assign-employee-to-Counter")]
+    public async Task<IActionResult> AssignEmployeeToCounter(CountersUpdateToAssignEmployeetoCounterDto countersUpdateTo)
+    {
+        var result = await _services.assignemployeetocounter(countersUpdateTo);
+        return result.IsSucceeded ? Ok(result) : BadRequest(result);
+    }
+    [HttpDelete("delete-employee-from-Counter/{counterid}")]
+    public async Task<IActionResult> DeleteEmployeeFromCounter(int counterid)
+    {
+        var result = await _services.DeleteEmployeeFromCounter(counterid);
+        return result.IsSucceeded ? Ok(result) : BadRequest(result);
+    }
+    [HttpPut("set-the-Counter-as-not-active/{counterid}")]
+    public async Task<IActionResult> SetTheCounterAsNotActive(int counterid)
+    {
+        var result = await _services.setthecounternotactive(counterid);
+        return result.IsSucceeded ? Ok(result) : BadRequest(result);
+    }
 
 
 }

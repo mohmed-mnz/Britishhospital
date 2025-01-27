@@ -13,4 +13,5 @@ public interface IEmployeeServices
     Task<GResponse<IEnumerable<EmployeeDto>>> GetEmployeeByOrgIdListAsync(int orgId);
     Task<GResponse<bool>> SetEmployeeAsNotActive(int empid);
     Task<GResponse<EmployeeLoginDto>> Login(EmpLogin loginDto);
+    Task<GResponse<bool>> ChangePassword(string OldPass,string NewPass,int empId);
 }
